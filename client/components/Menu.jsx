@@ -1,3 +1,9 @@
+import Image from 'next/image';
+
+import profilePic from '@/public/profile_pic.svg';
+import koinPic from '@/public/koin.svg';
+import darkThemePic from '@/public/dark_theme.png';
+
 function Menu() {
     return (
     <>
@@ -25,14 +31,14 @@ function Menu() {
             
             <div className="menuSection">
                 <div id="theme">
-                    <img src="./src/assets/images/dark_theme.png" alt="theme icon"/>
+                    <Image src={darkThemePic} alt="theme icon" />
                 </div>
                 <div id="coins">
                     <p>100</p>
-                    <img src="./src/assets/images/koin.svg" alt="koin"/>
+                    <Image src={koinPic} alt="koin" />
                 </div>
                 <div id="profile">
-                    <img src="./src/assets/images/profile_pic.svg" alt="profile pic"/>
+                    <Image src={profilePic} alt="profile pic" />
                 </div>
             </div>
         </div>

@@ -12,9 +12,9 @@ io.on("connection", (socket) => {
     socket.on("disconnecting", () => {
         console.log("dc");
     });
-    console.log(socket.id);
-    socket.on("rand",()=>{
-        socket.emit("randNum",Math.floor(Math.random() * 20)); 
+    
+    socket.on("sendMessage", ()=>{
+
     });
 });
 

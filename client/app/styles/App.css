@@ -10,7 +10,7 @@
 }
 
 #title {
-  font-family: titleFont;
+  font-family: var(--font-apes-title);
   letter-spacing: 0.25rem;
 }
 

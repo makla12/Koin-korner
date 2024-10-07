@@ -52,10 +52,6 @@
   color: var(--menuHover);
 }
 
-#theme img {
-  height: 100%;
-}
-
 #coins {
   display: flex;
   justify-content: center;
@@ -69,18 +65,8 @@
   height: 33.33%;
 }
 
-#coins img {
-  margin-left: 0.375rem;
-  height: 66.67%;
-}
-
 #profile {
   border: 0;
-}
-
-#profile img {
-  height: 100%;
-  border-radius: 100%;
 }
 
 #site {

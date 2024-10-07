@@ -31,14 +31,22 @@ function Menu() {
             
             <div className="menuSection">
                 <div id="theme">
-                    <Image src={darkThemePic} alt="theme icon" />
+                    <Image src={darkThemePic} alt="theme icon" style={{
+                        height: '100%'
+                    }}/>
                 </div>
                 <div id="coins">
                     <p>100</p>
-                    <Image src={koinPic} alt="koin" />
+                    <Image src={koinPic} alt="koin" style={{
+                        height: '66.67%',
+                        marginLeft: '0.375rem',
+                    }}/>
                 </div>
                 <div id="profile">
-                    <Image src={profilePic} alt="profile pic" />
+                    <Image src={profilePic} alt="profile pic" style={{
+                        height: '100%',
+                        borderRadius: '100%',
+                    }}/>
                 </div>
             </div>
         </div>

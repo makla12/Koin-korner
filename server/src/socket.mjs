@@ -4,7 +4,7 @@ import httpServer from "./httpServ.mjs";
 
 const io = new Server(httpServer, {
     cors:{
-        origin: "http://localhost:5173",
+        origin: "http://localhost:3000",
     }
 });
 
@@ -12,11 +12,9 @@ io.on("connection", (socket) => {
     socket.on("disconnecting", () => {
         console.log("dc");
     });
-    
-    socket.on("sendMessage", ()=>{
-
-    });
 });
+
+const chatNS = io.of("/chatNS");
 
 
 export default io;

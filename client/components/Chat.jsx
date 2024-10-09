@@ -1,4 +1,10 @@
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+
 function Chat() {
+    useEffect(()=>{
+        const chatSocket = io("127.0.0.1:8080/chatNS");
+    },[]);
     return (
     <>
         <div id="chatContainer">

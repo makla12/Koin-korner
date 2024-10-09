@@ -3,7 +3,7 @@ import { MainSite } from './MainSite.jsx'
 
 function Site() {
     return (
-    <div id="site">
+    <div id="site" className="flex justify-between items-center p-5">
         <Chat/>
         <MainSite/>
     </div>);

@@ -7,11 +7,17 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      borderWidth: {
+        DEFAULT: "0.125rem",
+      },
+      borderColor: {
+        'normalMenu': "var(--menuBorder)",
+        'normalChat': "var(--chatMessageInputBorder)"
       },
     },
+    fontFamily: {
+      'title': ["font-family: titleFont"]
+    }
   },
   plugins: [],
 };

@@ -14,9 +14,9 @@ function Menu() {
                 </div>
                 {
                     [
-                        {name: "Wpłacanie", href: ""},
-                        {name: "Wypłacanie", href: ""},
-                        {name: "Dowód uczciwości", href: ""}
+                        {name: "Wpłacanie", href: "/crash"},
+                        {name: "Wypłacanie", href: "/WIP"},
+                        {name: "Dowód uczciwości", href: "/ProvablyFair"}
                     ].map(div => (
                         <div className="text-fontColor hover:text-[#aaaaaa] hover:cursor-pointer
                         flex justify-center items-center max-w-2/5 h-full border-x border-[#f0f0f0] px-2.5 py-0.5">

@@ -5,9 +5,9 @@ import '@/app/styles/App.css';
 
 export default function Home() {
   return (
-    <div id="all">
+    <>
       <Menu/>
       <Site/>
-    </div>
+    </>
   );
 }

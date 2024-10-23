@@ -6,15 +6,6 @@
   box-sizing: border-box;
 }
 
-:root {
-  --background: #303030;
-  --fontColor: #f7f7f7;
-  --chatBackground: #424242;
-}
-
 body {
-  margin: 0;
-  background-color: var(--background);
-  color: var(--fontColor);
   font-family: Arial;
 }

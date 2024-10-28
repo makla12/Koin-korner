@@ -1,6 +1,8 @@
 function Nav() {
     return (
-    <div id="nav" className="w-full h-[9%] flex justify-center items-center border border-normalMenu">
+    <div id="nav" className="
+    w-full h-[12.5%] flex justify-center items-center 
+    bg-[#d3d3d3] dark:bg-[#404040] rounded-full">
          {
             [
                {name: "Ruletka", href: "/Roulette"},
@@ -9,8 +11,9 @@ function Nav() {
                {name: "Tower", href: "/Tower"}
             ].map((div, index) => (
                 <a key={index}className="
-                    border p-1.5 text-xl w-[10%] h-full flex justify-center items-center 
-                    bg-[#bbb074] hover:cursor-pointer hover:bg-[#a3995d] select-none"
+                    text-[#181818] text-2xl w-1/5 h-4/5  flex justify-center items-center 
+                    bg-[#cfb93d] hover:cursor-pointer hover:bg-[#e0cb58] select-none
+                    p-1.5 rounded-full mx-2"
                     href={div.href}
                 >
                     <h2>{div.name}</h2>

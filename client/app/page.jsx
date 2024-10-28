@@ -1,13 +1,11 @@
 'use client';
-import { Menu } from '@/components/Menu.jsx';
-import { Site } from '@/components/Site.jsx';
+import { DefaultPage } from '@/components/pages/DefaultPage';
 import '@/app/styles/App.css';
 
 export default function Home() {
   return (
     <>
-      <Menu/>
-      <Site/>
+      <DefaultPage />
     </>
   );
 }

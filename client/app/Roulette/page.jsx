@@ -1,11 +1,11 @@
 'use client';
 import '@/app/styles/App.css';
-import { Roulette } from '@/components/Roulette';
+import { RoulettePage } from '@/components/pages/RoulettePage';
 
 function Home() {
   return (
     <>
-      <Roulette/>
+      <RoulettePage />
     </>
   );
 }

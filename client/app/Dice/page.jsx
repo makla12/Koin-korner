@@ -1,11 +1,11 @@
 'use client';
 import '@/app/styles/App.css';
-import {Dice} from '@/components/Dice.jsx'
+import { DicePage } from '@/components/pages/DicePage';
 
 function Home() {
   return (
     <>
-      <Dice/>
+      <DicePage />
     </>
   );
 }

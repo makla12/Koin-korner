@@ -1,11 +1,11 @@
 'use client';
 import '@/app/styles/App.css';
-import { ProvablyFair } from '@/components/ProvablyFair';
+import { ProvablyFairPage } from '@/components/pages/ProvablyFairPage';
 
 function Home() {
   return (
     <>
-      <ProvablyFair/>
+      <ProvablyFairPage/>
     </>
   );
 }

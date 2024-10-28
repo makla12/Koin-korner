@@ -6,7 +6,7 @@ import lightTheme from '@/public/light_theme.svg';
 import { Unstable_Popup as Popup } from '@mui/base';
 import { useState } from 'react';
 
-function Menu() {
+function MainNav() {
     const [themeSrc, setThemeSrc] = useState(darkTheme);
     const [anchor, setAnchor] = useState(null);
     const [anchor2, setAnchor2] = useState(null);
@@ -49,18 +49,24 @@ function Menu() {
     const id2 = open2 ? 'simple-popper' : undefined;
  
     return (
-        <div id="menu" className="flex flex-row justify-between 
+        <div className="
+            flex flex-row justify-between 
             w-full h-[12.5vh] border-b border-black dark:border-white
             bg-[#d3d3d3] dark:bg-[#404040]"
         >
-            <div className="menuSection flex justify-center items-center select-none">
-                <div id="title" className="
+            {/* First half of nav */}
+            <div className="flex justify-center items-center select-none">
+
+                {/* Title */}
+                <div onClick={()=>{window.location = '/'}} id='title' className="
                     h-full flex justify-center items-center
                     px-2.5 py-0.5 tracking-[0.25rem]
-                    text-[#d0b835] dark:text-[#e6d750]"
+                    text-[#d0b835] dark:text-[#e6d750] cursor-pointer"
                 >
                     <h1 className="text-2xl text-center">KOIN KORNER</h1>
                 </div>
+                
+                {/* Rest of links */}
                 {
                     [
                         {name: "Wpłacanie", href: "/WIP"},
@@ -76,10 +82,14 @@ function Menu() {
                         </div>
                     ))
                 }
+            
             </div>
             
-            <div className="menuSection flex justify-center items-center select-none">
-                <div id="theme">
+            {/* Second half of nav */}
+            <div className="flex justify-center items-center select-none">
+
+                {/* Theme */}
+                <div>
                     <Image src={themeSrc} alt="theme" draggable={false} className="h-full stroke-[#f8few8] hover:cursor-pointer" onClick={showTheme}></Image>
                     <Popup id={id} open={open} anchor={anchor}>
                         <div className="
@@ -93,7 +103,7 @@ function Menu() {
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9 mx-1"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" class="fill-slate-50 stroke-slate-700 dark:stroke-slate-400 dark:fill-slate-200"></path><path d="M12 4v1M17.66 6.344l-.828.828M20.005 12.004h-1M17.66 17.664l-.828-.828M12 20.01V19M6.34 17.664l.835-.836M3.995 12.004h1.01M6 6l.835.836" class="stroke-slate-600 dark:stroke-slate-400"></path></svg>
                                 <p>Jasny</p>
                             </div>
-
+                            
                             <div onClick={() => changeTheme("dark")} className="
                                 w-full h-1/3 flex items-center text-md font-bold p-1 rounded-xl
                                 hover:cursor-pointer dark:hover:bg-[#4a4a4a] hover:bg-[#bebebe]"
@@ -112,7 +122,9 @@ function Menu() {
                         </div>
                     </Popup>
                 </div>
-                <div id="coins" className="
+                
+                {/* Coins */}
+                <div className="
                     h-full flex justify-center items-center
                     text-[#181818] dark:text-[#f7f7f7] font-title hover:text-[#505050] dark:hover:text-[#aaaaaa]
                     hover:cursor-pointer px-2.5 py-0.5"
@@ -120,7 +132,9 @@ function Menu() {
                     <p className="h-1/2 text-5xl text-center flex justify-center items-center">100</p>
                     <Image src={koinPic} alt="koin" draggable={false} className="h-2/3 w-full ml-2"/>
                 </div>
-                <div id="profile" className="
+
+                {/* Profile */}
+                <div className="
                     h-full hover:text-[#aaaaaa] hover:cursor-pointer
                     px-2.5 py-0.5
                     flex justify-center items-center"
@@ -138,9 +152,10 @@ function Menu() {
                         </div>
                     </Popup>
                 </div>
+
             </div>
         </div>
     );
 }
 
-export { Menu };
+export { MainNav };

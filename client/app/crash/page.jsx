@@ -1,11 +1,11 @@
 'use client';
-import { Crash } from '@/components/Crash.jsx';
 import '@/app/styles/App.css';
+import { CrashPage } from '@/components/pages/CrashPage';
 
 function Home() {
   return (
     <>
-      <Crash/>
+      <CrashPage />
     </>
   );
 }

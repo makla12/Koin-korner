@@ -4,6 +4,7 @@ import koinPic from '@/public/koin.svg';
 import darkThemePic from '@/public/dark_theme.svg';
 import lightThemePic from '@/public/light_theme.svg';
 import { useState } from 'react';
+import axios from 'axios';
 
 function Menu() {
     const [imageSrc, setImageSrc] = useState(darkThemePic);
@@ -59,11 +60,20 @@ function Menu() {
                     h-full flex justify-center items-center
                     text-5xl text-[#181818] dark:text-[#f7f7f7] font-title hover:text-[#505050] dark:hover:text-[#aaaaaa]
                     hover:cursor-pointer border-x border-[#181818] dark:border-[#f0f0f0] px-2.5 py-0.5"
+                    onClick={async ()=>{ console.log((await axios.get("http://localhost:8080/auth/checkLogIn", {withCredentials: true})).data) }}
                 >
                     <p className="h-1/2">100</p>
                     <Image src={koinPic} alt="koin" draggable={false} className="h-2/3 w-full ml-2"/>
                 </div>
-                <div id="profile" className="h-full border-0 hover:text-[#aaaaaa] hover:cursor-pointer border-x border-[#f0f0f0] px-2.5 py-0.5">
+                <div id="profile" className="h-full border-0 hover:text-[#aaaaaa] hover:cursor-pointer border-x border-[#f0f0f0] px-2.5 py-0.5" 
+                    onClick={()=>{
+                        axios.post("http://localhost:8080/auth/logIn", 
+                            {"username":"kala", "password":"123"}, 
+                            {
+                                withCredentials: true
+                            })
+                    }}
+                >
                     <Image src={profilePic} alt="profile pic" draggable={false} className="w-full h-full rounded-full"/>
                 </div>
             </div>

@@ -1,21 +1,26 @@
-import mysql from 'mysql';
+import mariadb from 'mariadb';
 import dotenv from 'dotenv';
 dotenv.config({path:"./../env"});
 
-const db = mysql.createConnection({
-	host: process.env.DATABASE_HOST,
-	user: process.env.DATABASE_USER,
-	password: process.env.DATABASE_PASSWORD,
-	database: process.env.DATABASE
-});
+const pool = mariadb.createPool({host: "localhost", user: "root", password: "", database: "kk"});
 
-db.connect((err)=>{
-	if(err){
-		console.log(err);
+const LogIn = async (username, password) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		const rows = await conn.query("SELECT * FROM users WHERE username  = ?", [username]);
+		if(rows.length == 0){
+			await conn.query("INSERT INTO users VALUE(null, ?, ?, 5)", [username, password]);
+			return 0;
+		}
+		if(rows[0].pass == password){
+			return 0;	
+		}
+		return 1;
 	}
-	else{
-		console.log("Connected to database");
+	finally{
+		if(conn) conn.release();
 	}
-});
+}
 
-export default db;
+export {LogIn};

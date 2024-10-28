@@ -1,4 +1,35 @@
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+import axios from "axios";
+
 function Chat() {
+    const [messages,setMessages] = useState(undefined);
+    const [socket, setSocket] = useState(undefined);
+    useEffect(()=>{
+        const fechData = async () => {
+            const data = await axios.get("http://localhost:8080/app/chatHistory");
+            setMessages(data.data.messages);
+        }
+        fechData();
+        setSocket(io("http://localhost:8080/chatNS", {withCredentials: true}));
+    },[]);
+
+    useEffect(()=>{
+        if(socket == undefined){
+            return ;
+        }
+
+        socket.on("message", (messageInfo) => {
+            let newMessages = Array.from(messages);
+            newMessages.push(messageInfo);
+            setMessages(newMessages);
+        });
+
+        return ()=>{
+            socket.off("message");
+        }
+    },[messages])
+
     return (
     <>
         <div id="chatContainer" className="

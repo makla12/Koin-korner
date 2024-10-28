@@ -5,6 +5,7 @@ import darkTheme from '@/public/dark_theme.svg';
 import lightTheme from '@/public/light_theme.svg';
 import { Unstable_Popup as Popup } from '@mui/base';
 import { useState } from 'react';
+import axios from 'axios';
 
 function Menu() {
     const [themeSrc, setThemeSrc] = useState(darkTheme);

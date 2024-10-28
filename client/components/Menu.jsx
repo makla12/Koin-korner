@@ -1,56 +1,75 @@
 import Image from 'next/image';
-
 import profilePic from '@/public/profile_pic.svg';
 import koinPic from '@/public/koin.svg';
-import darkThemePic from '@/public/dark_theme.png';
+import darkThemePic from '@/public/dark_theme.svg';
+import lightThemePic from '@/public/light_theme.svg';
+import { useState } from 'react';
 
 function Menu() {
+    const [imageSrc, setImageSrc] = useState(darkThemePic);
+
+    function changeTheme() {
+        const all = document.getElementById("all");
+        const themeImage = document.querySelector("#theme img");
+        if (all.className.slice(all.className.length - 4) == "dark") {
+            all.className = all.className.substring(0, all.className.length - 4);
+            themeImage.className = themeImage.className.substring(0, themeImage.className.length - 6);
+            setImageSrc(lightThemePic);
+        } else {
+            all.className += "dark";
+            themeImage.className += "invert";
+            setImageSrc(darkThemePic);
+
+        }
+    }
     return (
     <>
-        <div id="menu">
-            <div className="menuSection">
-                <div id="title">
-                    <h1>KOIN KORNER</h1>
+        <div id="menu" className="flex flex-row justify-between w-full h-[12.5vh] border border-black dark:border-white">
+            <div className="menuSection flex justify-center items-center select-none">
+                <div id="title" className="
+                h-full max-width-2/5 flex justify-center items-center
+                 px-2.5 py-0.5 tracking-[0.25rem]
+                 border-x border-[#181818] dark:border-[#f0f0f0]
+                 text-[#c5ba57] dark:text-[#f8eb73]">
+                    <h1 className="text-2xl">KOIN KORNER</h1>
                 </div>
-                <div>
-                    <a href="">
-                        <h3>Wpłacanie</h3>
-                    </a>
-                </div>
-                <div>
-                    <a href="">
-                        <h3>Wypłacanie</h3>
-                    </a>
-                </div>
-                <div>
-                    <a href="">
-                        <h3>Dowód sprawiedliwości</h3>
-                    </a>
-                </div>
+                {
+                    [
+                        {name: "Wpłacanie", href: "/WIP"},
+                        {name: "Wypłacanie", href: "/WIP"},
+                        {name: "Dowód uczciwości", href: "/ProvablyFair"}
+                    ].map((div, index) => (
+                        <div key={index} className="
+                        text-fontColor hover:text-[#505050] dark:hover:text-[#aaaaaa] hover:cursor-pointer
+                        flex justify-center items-center max-w-2/5 h-full 
+                        border-x border-[#181818] dark:border-[#f0f0f0] px-2.5 py-0.5">
+                            <a href={div.href} className="text-xl tracking-widest no-underline">{div.name}</a>
+                        </div>
+                    ))
+                }
             </div>
             
-            <div className="menuSection">
-                <div id="theme">
-                    <Image src={darkThemePic} alt="theme icon" style={{
-                        height: '100%'
-                    }}/>
+            <div className="menuSection flex justify-center items-center select-none">
+                <div id="theme" className="
+                w-64 h-full max-width-2/5 flex justify-center items-center 
+                border-x border-[#181818] dark:border-[#f0f0f0] px-2.5 py-0.5 hover:cursor-pointer" onClick={changeTheme}>
+                    <Image src={imageSrc} alt="theme icon" draggable={false} className="w-auto h-full invert"/>
                 </div>
-                <div id="coins">
-                    <p>100</p>
-                    <Image src={koinPic} alt="koin" style={{
-                        height: '66.67%',
-                        marginLeft: '0.375rem',
-                    }}/>
+                <div id="coins" className="
+                    h-full flex justify-center items-center
+                    text-5xl text-[#181818] dark:text-[#f7f7f7] font-title hover:text-[#505050] dark:hover:text-[#aaaaaa]
+                    hover:cursor-pointer border-x border-[#181818] dark:border-[#f0f0f0] px-2.5 py-0.5"
+                >
+                    <p className="h-1/2">100</p>
+                    <Image src={koinPic} alt="koin" draggable={false} className="h-2/3 w-full ml-2"/>
                 </div>
-                <div id="profile">
-                    <Image src={profilePic} alt="profile pic" style={{
-                        height: '100%',
-                        borderRadius: '100%',
-                    }}/>
+                <div id="profile" className="h-full border-0 hover:text-[#aaaaaa] hover:cursor-pointer border-x border-[#f0f0f0] px-2.5 py-0.5">
+                    <Image src={profilePic} alt="profile pic" draggable={false} className="w-full h-full rounded-full"/>
                 </div>
             </div>
         </div>
     </>);
 }
+
 
 export { Menu };

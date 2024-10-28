@@ -16,5 +16,10 @@ io.on("connection", (socket) => {
 
 const chatNS = io.of("/chatNS");
 
+chatNS.on("connection", (socket) => {
+    socket.on("disconnecting", () => {
+        console.log("dc");
+    });
+});
 
 export default io;

@@ -13,26 +13,28 @@ app.use(session({
     saveUninitialized: false
 }));
 app.use(cors({
-    origin:"http://localhost:3000",
+    origin:"*",
     methods: ['POST', 'GET'],
     credentials: true
 }));
 
-app.get("/auth/CheckLogIn", (req, res) => {
-    console.log(req.session)
-    console.log(req.session.isLogedIn);
-    console.log(req.session.username);
+app.get("/auth/checkLogIn", (req, res) => {
     res.json({
-        isLogedIn:"a",
-        username:"a"
+        isLogedIn:(req.session.isLogedIn == undefined ? false : req.session.isLogedIn),
+        username:req.session.username
     });
 });
 
-app.post("/auth/logIn", (req, res)=>{
-    console.log(req.body);
-    LogIn(req.body.username, req.body.password);
-    res.json({suc:true});
+app.post("/auth/logIn",async (req, res)=>{
+    let loginRes = await LogIn(req.body.username, req.body.password);
+    req.session.isLogedIn = loginRes == 0;
+    req.session.username = req.body.username;
+    res.json({suc:loginRes == 0});
 });
 
+app.post("/auth/logOut", (req, res)=>{
+    req.session.isLogedIn = false;
+    res.json({suc:true});
+});
 
 export default app;

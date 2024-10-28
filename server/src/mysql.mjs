@@ -10,11 +10,13 @@ const LogIn = async (username, password) => {
 		conn = await pool.getConnection();
 		const rows = await conn.query("SELECT * FROM users WHERE username  = ?", [username]);
 		if(rows.length == 0){
-			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 5)", [username, password]);
-			console.log(res);
+			await conn.query("INSERT INTO users VALUE(null, ?, ?, 5)", [username, password]);
 			return 0;
 		}
-		console.log(rows);
+		if(rows[0].pass == password){
+			return 0;	
+		}
+		return 1;
 	}
 	finally{
 		if(conn) conn.release();

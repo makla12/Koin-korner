@@ -1,10 +1,12 @@
-import '@/app/styles/App.css';
 import Image from 'next/image';
 import wip from "@/public/wip.png";
+import { MainNav } from '@/components/elements/MainNav';
 
-function WIP() {
+
+function WIPPage() {
   return (
     <>
+		<MainNav />
         <div className="flex justify-center items-center">
             <Image src={wip} alt="work in progress"/>
         </div>
@@ -13,4 +15,4 @@ function WIP() {
   );
 }
 
-export {WIP};
+export { WIPPage };

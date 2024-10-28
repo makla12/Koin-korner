@@ -1,11 +1,11 @@
 'use client';
 import '@/app/styles/App.css';
-import {Tower} from '@/components/Tower.jsx'
+import { TowerPage } from '@/components/pages/TowerPage';
 
 function Home() {
   return (
     <>
-      <Tower/>
+      <TowerPage />
     </>
   );
 }

@@ -1,11 +1,11 @@
 'use client';
 import '@/app/styles/App.css';
-import { WIP } from '@/components/WIP';
+import { WIPPage } from '@/components/pages/WIPPage';
 
 function Home() {
   return (
     <>
-      <WIP/>
+      <WIPPage />
     </>
   );
 }

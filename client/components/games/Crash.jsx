@@ -1,9 +1,9 @@
 function Crash() {
-  return (
+  	return (
     <>
-      
+		<div>Crash</div>
     </>
-  );
+  	);
 }
 
 export { Crash };

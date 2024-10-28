@@ -11,7 +11,7 @@ function Nav() {
                {name: "Tower", href: "/Tower"}
             ].map((div, index) => (
                 <a key={index}className="
-                    text-[#181818] text-xl w-1/5 h-4/5  flex justify-center items-center 
+                    text-[#181818] text-2xl w-1/5 h-4/5  flex justify-center items-center 
                     bg-[#cfb93d] hover:cursor-pointer hover:bg-[#e0cb58] select-none
                     p-1.5 rounded-full mx-2"
                     href={div.href}

@@ -10,8 +10,8 @@ function Chat() {
                 w-[90%] p-2 mt-2 rounded-full
                 hover:cursor-pointer hover:bg-[#8d8f91] dark:hover:bg-[#b6b7ba]">
                     <option selected>Polska</option>
-                    <option selected>USA</option>
-                    <option selected>Japonia</option>
+                    <option>USA</option>
+                    <option>Japonia</option>
                 </select>
             </div>
             <div id="chat" className="

@@ -1,6 +1,6 @@
 import mariadb from 'mariadb';
-import dotenv from 'dotenv';
-dotenv.config({path:"./../env"});
+// import dotenv from 'dotenv';
+// dotenv.config({path:"./../env"});
 
 const pool = mariadb.createPool({host: "localhost", user: "root", password: "", database: "kk"});
 

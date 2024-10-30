@@ -37,14 +37,14 @@ function Chat() {
     return (
         <div className="
             w-1/4 h-full flex flex-col justify-between items-center 
-            rounded-xl bg-[#d3d3d3] dark:bg-[#404040]"
+            rounded-xl bg-[#d3d3d3] dark:bg-[#27272a]"
         >
             {/* Room selector */}
             <div className="w-full flex justify-center items-center">
                 <select id="roomSelect" className="
-                    bg-[#a0a1a3] dark:bg-[#aaabad] text-[#181818] text-center text-lg
+                    bg-[#a0a1a3] dark:bg-zinc-500 text-[#181818] text-center text-lg
                     w-[90%] p-2 mt-2 rounded-full
-                    hover:cursor-pointer hover:bg-[#8d8f91] dark:hover:bg-[#b6b7ba]"
+                    hover:cursor-pointer"
                 >
                     <option value={0}>Polski</option>
                     <option value={1}>Angielski</option>

@@ -7,6 +7,7 @@ import { Unstable_Popup as Popup } from '@mui/base';
 import { useState } from 'react';
 
 function MainNav() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [themeSrc, setThemeSrc] = useState(darkTheme);
     const [anchor, setAnchor] = useState(null);
     const [anchor2, setAnchor2] = useState(null);
@@ -70,7 +71,7 @@ function MainNav() {
                     [
                         {name: "Wpłacanie", href: "/WIP"},
                         {name: "Wypłacanie", href: "/WIP"},
-                        {name: "Dowód uczciwości", href: "/ProvablyFair"}
+                        {name: "Dowód uczciwości", href: "/provablyFair"}
                     ].map((div, index) => (
                         <div key={index} className="
                             text-[#181818] dark:text-[#e6e6e6] text-center hover:text-[#505050] dark:hover:text-[#aaaaaa] hover:cursor-pointer
@@ -122,7 +123,11 @@ function MainNav() {
                     </Popup>
                 </div>
                 
-                {/* Coins */}
+                
+
+                {isLoggedIn ?
+                <>
+                /* Coins */
                 <div className="
                     h-full flex justify-center items-center
                     text-[#181818] dark:text-[#f7f7f7] font-title hover:text-[#505050] dark:hover:text-[#aaaaaa]
@@ -131,7 +136,6 @@ function MainNav() {
                     <p className="h-1/2 text-5xl text-center flex justify-center items-center">100</p>
                     <Image src={koinPic} alt="koin" draggable={false} className="h-2/3 w-full ml-2"/>
                 </div>
-
                 {/* Profile */}
                 <div className="
                     h-full hover:text-[#aaaaaa] hover:cursor-pointer
@@ -142,15 +146,29 @@ function MainNav() {
                     <Popup id={id2} open={open2} anchor={anchor2}>
                         <div className="
                             bg-[#f3f3f3] dark:bg-[#303030] text-[#303030] dark:text-[#f3f3f3]
-                            rounded-xl border border-[#8b8a8a] w-64 h-24 select-none"
+                            border-1 border-[#8b8a8a] w-64 h-24 select-none mr-4"
                         >
-                            <a href="/login" className="
-                                w-full h-1/2 flex justify-center items-center 
-                                text-lg text-center text-[#242424] dark:text-[#f3f3f3] bg-[#c3c3c3] dark:bg-[#696969]"
-                            >Zarejestruj</a>
                         </div>
                     </Popup>
                 </div>
+                </>
+
+                :
+
+                <div className="flex justify-center items-center text-xl">
+                    <a href="signup" className="
+                    text-[#181818] text-xl flex justify-center items-center 
+                    bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
+                    p-3 rounded-xl m-3
+                    ">Zarejestruj się</a>
+                    <a href="login" className="
+                    text-[#181818] text-xl flex justify-center items-center 
+                    bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
+                    p-3 rounded-xl m-3
+                    ">Zaloguj się</a>
+                </div>
+                }
+                
 
             </div>
         </div>

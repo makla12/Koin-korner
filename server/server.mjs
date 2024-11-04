@@ -3,7 +3,8 @@ import session from 'express-session';
 import cors from 'cors';
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { LogIn } from "./src/mysql.mjs";
+import { logIn, register } from "./src/mysql.mjs";
+import nodemailer from "nodemailer";
 
 
 //Ustawienia sesji i CORS
@@ -39,7 +40,7 @@ app.post("/auth/logIn",async (req, res)=>{ //Próba zalogowania użytkownika
     if(req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
         return 0;
     }
-    let loginRes = await LogIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
+    let loginRes = await logIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
     req.session.isLogedIn = loginRes == 0;
     req.session.username = req.body.username;
     res.json({suc:loginRes == 0}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
@@ -50,6 +51,17 @@ app.post("/auth/logOut", (req, res)=>{ //Wylogowanie użytkownika
     res.json({suc:true});
 });
 
+app.post("/auth/register", async (req, res) => {
+    if(req.body.email == undefined || req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
+        return 0;
+    }
+    let registerRes = await register(req.body.email, req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
+    if(registerRes == 0){
+        req.session.isLogedIn = registerRes == 0;
+        req.session.username = req.body.username;
+    }
+    res.json({suc:registerRes == 0}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
+});
 
 //Zdefiniowanie routów związanych z aplikacją
 

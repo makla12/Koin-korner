@@ -2,6 +2,7 @@ function SignUpPage() {
     function checkInfo(event) {
         if (document.getElementById("password").value != document.getElementById("confirmPassword").value) {
             event.preventDefault();
+            alert("Hasła się nie zgadzają");
         }
     }
 
@@ -55,6 +56,7 @@ function SignUpPage() {
                     bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
                     p-2 rounded-full mx-auto
                     ">Zarejestruj</button>
+                    <p className="text-md text-[#303030] dark:text-[#f3f3f3]">Masz już konto? Zaloguj się <a href="./login" className="text-yellow-500 underline">tutaj</a></p>
                 </div>
                 
             </form>

@@ -1,10 +1,4 @@
 function LoginPage() {
-    function checkInfo(event) {
-        if (document.getElementById("password").value != document.getElementById("confirmPassword").value) {
-            event.preventDefault();
-        }
-    }
-
     return (
     <>
 
@@ -12,7 +6,6 @@ function LoginPage() {
             <form className="
                 w-[30vw] h-[45vh] bg-[#d3d3d3] dark:bg-[#29292a] text-[#303030] dark:text-[#f3f3f3]
                 rounded-lg flex flex-col justify-start p-4"
-                onSubmit={checkInfo}
             >
                 <a href="./" className="
                 text-[#181818] text-2xl w-[30%] flex justify-center items-center
@@ -38,6 +31,7 @@ function LoginPage() {
                     bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
                     p-2 rounded-full mx-auto my-4
                     ">Zaloguj</button>
+                    <p className="text-md text-[#303030] dark:text-[#f3f3f3]">Nie masz konta? Zarejestruj się <a href="./signup" className="text-yellow-500 underline">tutaj</a></p>
                 </div>
                 
             </form>

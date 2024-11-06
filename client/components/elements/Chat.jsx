@@ -67,7 +67,7 @@ function Chat() {
             {socket == undefined ? "Loading..." :
             <div className="flex justify-center items-center w-full p-1">
                 <input type="text" id="messageInput" className="
-                    w-10/12 h-full rounded-lg mr-1 p-1
+                    w-10/12 h-full rounded-lg mr-1 p-4
                     text-base bg-[#a0a1a3] dark:bg-[#5d6066]"
                 />
 
@@ -77,6 +77,7 @@ function Chat() {
                         return ;
                     }
                     socket.emit("sendMessage", messageInput.value); //Send message
+                    messageInput.value = "";
                 }} 
                 className="
                     w-[15%] h-full p-0.5 rounded-lg flex justify-center items-center

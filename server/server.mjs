@@ -31,7 +31,7 @@ app.use(cors(corsOptions));
 //Zdefiniowanie routów związanych autoryzacji
 app.get("/auth/checkLogIn", (req, res) => { //Odsyła czy użytkownik jest zalogowany oraz nazwę użytkownika
     res.json({
-        isLogedIn:(req.session.isLogedIn == undefined ? false : req.session.isLogedIn),
+        isLoggedIn:(req.session.isLoggedIn == undefined ? false : req.session.isLoggedIn),
         username:req.session.username
     });
 });
@@ -41,13 +41,13 @@ app.post("/auth/logIn",async (req, res)=>{ //Próba zalogowania użytkownika
         return 0;
     }
     let loginRes = await logIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
-    req.session.isLogedIn = loginRes == 0;
+    req.session.isLoggedIn = loginRes == 0;
     req.session.username = req.body.username;
     res.json({suc:loginRes == 0}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
 });
 
 app.post("/auth/logOut", (req, res)=>{ //Wylogowanie użytkownika
-    req.session.isLogedIn = false;
+    req.session.isLoggedIn = false;
     res.json({suc:true});
 });
 
@@ -57,7 +57,7 @@ app.post("/auth/register", async (req, res) => {
     }
     let registerRes = await register(req.body.email, req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
     if(registerRes == 0){
-        req.session.isLogedIn = registerRes == 0;
+        req.session.isLoggedIn = registerRes == 0;
         req.session.username = req.body.username;
     }
     res.json({suc:registerRes == 0}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
@@ -122,7 +122,7 @@ chatNS.on("connection", (socket) => {
 	/*	WIP		Dodanie zapisu do bazy danych*/
 
     socket.on("sendMessage", (message) => {
-        if(!req.session.isLogedIn){ //Sprawdzenie czy użytkownik jest zalogowany
+        if(!req.session.isLoggedIn){ //Sprawdzenie czy użytkownik jest zalogowany
             return ;
         }
 		//Zdobycie teraźniejszej godziny

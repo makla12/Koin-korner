@@ -80,7 +80,7 @@ function Chat() {
                 }} 
                 className="
                     w-[15%] h-full p-0.5 rounded-lg flex justify-center items-center
-                    text-4xl text-[#252525] bg-[#dcc43c] hover:bg-[#bdac4f]
+                    text-4xl text-[#252525] bg-[#dba134] hover:bg-[#dbb446]
                     hover:cursor-pointer select-none"
                 >&gt;</button>
             </div>

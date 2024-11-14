@@ -53,7 +53,6 @@ function SignUpPage() {
 
                         <SubmitButton value={"Zarejestruj"} />
                     </div>
-
                 </div>
                 
             </form>

@@ -19,7 +19,7 @@ function LoginPage() {
         event.preventDefault();
         login();
     }
-
+    
     return (
     <>
         <div className="flex justify-center items-center my-[25vh]">
@@ -35,7 +35,6 @@ function LoginPage() {
                         <FormInput type={"text"} formLabel={"Nazwa użytkownika:"} formControl={setUsername} />
                         <FormInput type={"password"} formLabel={"Hasło:"} formControl={setPassword} />
                     </div>
-
                     <SubmitButton value={"Zaloguj"} />
                 </div>
                 

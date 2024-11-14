@@ -5,9 +5,9 @@ import darkTheme from '@/public/dark_theme.svg';
 import lightTheme from '@/public/light_theme.svg';
 import { Unstable_Popup as Popup } from '@mui/base';
 import { useState } from 'react';
+import axios from 'axios';
 
-function MainNav() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+function MainNav({ isLoggedIn }) {
     const [themeSrc, setThemeSrc] = useState(darkTheme);
     const [anchor, setAnchor] = useState(null);
     const [anchor2, setAnchor2] = useState(null);
@@ -125,16 +125,16 @@ function MainNav() {
                 
                 
 
-                {isLoggedIn ?
+                {isLoggedIn == null ? "Loading..." : isLoggedIn ?
                 <>
-                /* Coins */
+                { /* Coins */ }
                 <div className="
-                    h-full flex justify-center items-center
-                    text-[#181818] dark:text-[#f7f7f7] font-title hover:text-[#505050] dark:hover:text-[#aaaaaa]
-                    hover:cursor-pointer px-2.5 py-0.5"
+                    h-full px-2.5 py-0.5 
+                    flex justify-center items-center gap-5 
+                    text-[#181818] dark:text-[#f7f7f7] font-title"
                 >
                     <p className="h-1/2 text-5xl text-center flex justify-center items-center">100</p>
-                    <Image src={koinPic} alt="koin" draggable={false} className="h-2/3 w-full ml-2"/>
+                    <Image src={koinPic} alt="koin" draggable={false} className="h-1/2 w-auto"/>
                 </div>
                 {/* Profile */}
                 <div className="
@@ -148,6 +148,12 @@ function MainNav() {
                             bg-[#f3f3f3] dark:bg-[#303030] text-[#303030] dark:text-[#f3f3f3]
                             border-1 border-[#8b8a8a] w-64 h-24 select-none mr-4"
                         >
+                                <div className='h-10 flex items-center justify-center bg-[#303030] cursor-pointer hover:bg-[#202020]' 
+                                    onClick={async ()=>{
+                                        axios.post("http://localhost:8080/auth/logOut", {}, {withCredentials:true});
+                                        window.location.reload();
+                                    }}
+                                >Wyloguj</div>
                         </div>
                     </Popup>
                 </div>
@@ -157,15 +163,16 @@ function MainNav() {
 
                 <div className="flex justify-center items-center text-xl">
                     <a href="signup" className="
-                    text-[#181818] text-xl flex justify-center items-center 
-                    bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
-                    p-3 rounded-xl m-3
-                    ">Zarejestruj się</a>
+                        text-[#181818] text-xl flex justify-center items-center 
+                        bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
+                        p-3 rounded-xl m-3"
+                    >Zarejestruj się</a>
+                    
                     <a href="login" className="
-                    text-[#181818] text-xl flex justify-center items-center 
-                    bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
-                    p-3 rounded-xl m-3
-                    ">Zaloguj się</a>
+                        text-[#181818] text-xl flex justify-center items-center 
+                        bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 select-none
+                        p-3 rounded-xl m-3"
+                    >Zaloguj się</a>
                 </div>
                 }
                 

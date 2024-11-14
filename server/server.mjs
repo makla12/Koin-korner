@@ -3,7 +3,8 @@ import session from 'express-session';
 import cors from 'cors';
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { LogIn } from "./src/mysql.mjs";
+import { logIn, register, saveMessage, getMessages } from "./src/mysql.mjs";
+import nodemailer from "nodemailer";
 
 
 //Ustawienia sesji i CORS
@@ -14,7 +15,7 @@ const sessionMiddleware = session({
 });
 
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://192.168.88.24:3000"],
     methods: ['POST', 'GET'],
     credentials: true
 };
@@ -30,7 +31,7 @@ app.use(cors(corsOptions));
 //Zdefiniowanie routów związanych autoryzacji
 app.get("/auth/checkLogIn", (req, res) => { //Odsyła czy użytkownik jest zalogowany oraz nazwę użytkownika
     res.json({
-        isLogedIn:(req.session.isLogedIn == undefined ? false : req.session.isLogedIn),
+        isLoggedIn:(req.session.isLoggedIn == undefined ? false : req.session.isLoggedIn),
         username:req.session.username
     });
 });
@@ -39,27 +40,35 @@ app.post("/auth/logIn",async (req, res)=>{ //Próba zalogowania użytkownika
     if(req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
         return 0;
     }
-    let loginRes = await LogIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
-    req.session.isLogedIn = loginRes == 0;
+    const id = await logIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
+    req.session.isLoggedIn = id != 0;
+    req.session.userId = id;
     req.session.username = req.body.username;
-    res.json({suc:loginRes == 0}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
+    res.json({suc:id != null}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
 });
 
 app.post("/auth/logOut", (req, res)=>{ //Wylogowanie użytkownika
-    req.session.isLogedIn = false;
+    req.session.isLoggedIn = false;
     res.json({suc:true});
 });
 
+app.post("/auth/register", async (req, res) => {
+    if(req.body.email == undefined || req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
+        return 0;
+    }
+    const id = await register(req.body.email, req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
+    req.session.isLoggedIn = id != null;
+    req.userId = id;
+    req.session.username = req.body.username;
+    res.json({suc:id != null}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
+});
 
 //Zdefiniowanie routów związanych z aplikacją
 
 /*	WIP		Dodanie odczytu danych z bazy danych*/
 
-app.get("/app/chatHistory", (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
-    res.json({messages:[
-        {user:"makla", time:"13:46", message:"Rudy to cwel"},
-        {user:"rudy", time:"13:47", message:"To prawda"}
-    ]});
+app.get("/app/chatHistory",async (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
+    res.json({messages:await getMessages()});
 });
 
 
@@ -110,18 +119,21 @@ chatNS.on("connection", (socket) => {
 	/*	WIP		Dodanie zapisu do bazy danych*/
 
     socket.on("sendMessage", (message) => {
-        if(!req.session.isLogedIn){ //Sprawdzenie czy użytkownik jest zalogowany
+        if(!req.session.isLoggedIn){ //Sprawdzenie czy użytkownik jest zalogowany
             return ;
         }
 		//Zdobycie teraźniejszej godziny
-        const minuteNow = (Date.now() % (1000 * 60 * 60 * 24)) / 1000 / 60;
-        const hours = Math.floor(minuteNow / 60) + 1;
-        const minutes = Math.floor(minuteNow % 60);
-
+        const datenow = new Date(Date.now()); 
+        const year = datenow.getFullYear();
+        const month = datenow.getMonth() + 1;
+        const day = datenow.getDate();
+        const time = datenow.toTimeString().substring(0,8);
+        const dateSting = `${year}-${month < 10 ? "0" : ""}${month}-${day} ${time}`;
+        saveMessage(req.session.userId, dateSting, message);
 		//Wysłanie wiadomości do użytkowników
         chatNS.emit("message", {
-            user:req.session.username,
-            time:`${hours}:${minutes}`,
+            username:req.session.username,
+            date:dateSting,
             message:message
         });
     });

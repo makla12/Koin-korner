@@ -11,7 +11,7 @@ function SignUpPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
 
     const register = async () => {
-        const req = await axios.post("http://localhost:8080/auth/register",{email:email, username:username, password:password}, { withCredentials:true });
+        const req = await axios.post("http://" + window.location.hostname + ":8080/auth/register",{email:email, username:username, password:password}, { withCredentials:true });
         if(req.data.suc){
             window.location = "/"
         }

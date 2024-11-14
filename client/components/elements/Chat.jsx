@@ -10,11 +10,11 @@ function Chat() {
     //Get chat data and connect socket
     useEffect(()=>{
         const fechData = async () => {
-            const data = await axios.get("http://localhost:8080/app/chatHistory");
+            const data = await axios.get("http://" + window.location.hostname + ":8080/app/chatHistory");
             setMessages(data.data.messages);
         }
         fechData();
-        setSocket(io("http://localhost:8080/chatNS", {withCredentials: true}));
+        setSocket(io(window.location.hostname + ":8080/chatNS", {withCredentials: true}));
     },[]);
 
     //Declare socket events
@@ -22,7 +22,6 @@ function Chat() {
         if(socket == undefined){
             return ;
         }
-
         socket.on("message", (messageInfo) => {
             let newMessages = Array.from(messages);
             newMessages.push(messageInfo);
@@ -35,8 +34,8 @@ function Chat() {
     },[messages])
 
     return (
-        <div className="
-            w-1/4 h-full flex flex-col justify-between items-center 
+        <div id="chatDiv" className="
+            w-[20%] min-w-[20%] h-full flex flex-col justify-between items-center 
             rounded-xl bg-[#d3d3d3] dark:bg-[#27272a]"
         >
             {/* Room selector */}
@@ -54,7 +53,7 @@ function Chat() {
 
             {/* Chat */}
             <div className="
-                h-full w-11/12 flex flex-col justify-start
+                h-full w-11/12 flex flex-col justify-start gap-5
                 py-3 px-0.5 overflow-y-auto"
             >
                 {messages == undefined ? "Loading..." :

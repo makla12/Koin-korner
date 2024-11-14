@@ -12,12 +12,12 @@ const logIn = async (username, password) => {
 		conn = await pool.getConnection();
 		const rows = await conn.query("SELECT * FROM users WHERE username  = ?", [username]);
 		if(rows.length == 0){ //Sprawdzenie czy nie istnieje użytkownik
-			return 1;
+			return null;
 		}
 		if(rows[0].pass != crypto.createHash("sha256").update(password).digest("hex")){ //Sprawdzenie czy hasło zgadza się z podanym
-			return 1;	
+			return null;	
 		}
-		return 0; //Zwrócenie 0 jeżeli logowanie się powiodło
+		return rows[0].id; //Zwrócenie 0 jeżeli logowanie się powiodło
 	}
 	finally{
 		if(conn) conn.release();
@@ -30,11 +30,11 @@ const register = async (email, username, password) => {
 	try{
 		conn = await pool.getConnection();
 		try{
-			await conn.query("INSERT INTO users VALUE(null, ?, ?, 5, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
-			return 0;
+			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 5, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
+			return res.insertId;
 		}
 		catch (e){
-			return 1;
+			return null;
 		}
 	}
 	finally{
@@ -42,4 +42,26 @@ const register = async (email, username, password) => {
 	}
 }
 
-export { logIn, register };
+const saveMessage = async (userid, date, message) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		await conn.query("INSERT INTO chat VALUE(null, ?, ?, ?)", [userid.toString(), date, message]);
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+
+const getMessages = async () => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		let res = await conn.query("SELECT username, date, message FROM chat INNER JOIN users ON chat.user_id = users.id ORDER BY date ASC LIMIT 50;");
+		return res;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+export { logIn, register, saveMessage, getMessages };

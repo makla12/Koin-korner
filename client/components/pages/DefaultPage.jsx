@@ -7,11 +7,11 @@ function DefaultPage() {
     const [ isLoggedIn, setIsLoggedIn ] = useState(null);
 
     const fetchLogin = async () => {
-        const res = await axios.get("http://localhost:8080/auth/checkLogIn",{withCredentials:true});
+        const res = await axios.get("http://" + window.location.hostname + ":8080/auth/checkLogIn",{withCredentials:true});
         setIsLoggedIn(res.data.isLoggedIn);
-        console.log(res.data);
     }
     useEffect(()=>{
+        console.log("http://" + window.location.hostname + ":8080/auth/checkLogIn");
         fetchLogin();
     },[])
 

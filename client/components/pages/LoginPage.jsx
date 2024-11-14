@@ -9,7 +9,7 @@ function LoginPage() {
     const [password, setPassword] = useState("");
 
     const login = async () => {
-        const req = await axios.post("http://localhost:8080/auth/logIn",{username:username, password:password}, { withCredentials:true });
+        const req = await axios.post("http://" + window.location.hostname + ":8080/auth/logIn",{username:username, password:password}, { withCredentials:true });
         if(req.data.suc){
             window.location = "/"
         }

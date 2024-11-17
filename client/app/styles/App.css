@@ -1,3 +1,8 @@
+@keyframes roulette {
+  from {right: 0}
+  to {right: 400%}
+}
+
 #title {
   font-family: var(--font-apes-title);
 }

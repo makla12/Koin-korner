@@ -1,18 +1,21 @@
 import Image from "next/image";
-import {useRef} from "react";
+import {useEffect, useRef} from "react";
 import blankProfile from "@/public/blank_profile.png";
 
 function Roulette() {
 	const rouletteRef = useRef(null);
 	const inputRef = useRef(null);
 	const chosenBet = null;
+	useEffect(()=>{
+		// setTimeout(() => {bet(4)}, 1000)
+	},[])
 	function bet(number) {
 		if (rouletteRef.current) {
 			let steps = 0;
 		if (number == 4) {
-			steps = 138 * 100 + (([-1, 1][Math.floor(Math.random() * 2)]) * Math.random() * 2);
+			steps = 5 * 15;// + (([-1, 1][Math.floor(Math.random() * 2)]) * Math.random() * 2);
 		}
-		rouletteRef.current.style.transform = `translateX(-${steps}px)`;
+		rouletteRef.current.style.transform = `translateX(-${steps}vw)`;
 		}
 	}
 
@@ -20,6 +23,7 @@ function Roulette() {
 		if (inputRef.current) {
 			switch (action) {
 				case "+10":
+					console.log(Number(inputRef.current.value))
 					inputRef.current.value = Number(inputRef.current.value) + 10;
 					break;
 				case "+100":
@@ -44,8 +48,8 @@ function Roulette() {
   	return (
     <>
 	<div id="container" className="">
-		<div className="h-[5%] m-auto flex justify-center text-xl select-none">|</div>
-		<div  id="roulette" ref={rouletteRef} className="h-[20%] flex justify-start items-center rounded-lg w-full relative transition duration-[5s]">
+		<div className="h-[5%] w-[0.2vw] bg-white m-auto flex justify-center">|</div>
+		<div  id="roulette" ref={rouletteRef} className="h-[20%] flex justify-start items-center rounded-lg w-full relative transition-transform duration-[5s]">
 			{
 				[
 					{color: "yellow", number: "K"},
@@ -215,15 +219,12 @@ function Roulette() {
 					{color: "black", number: "14"},
 				].map((div, index) => (
 					<div key={index} className={`
-						w-[100px] h-[100px]
+						w-[5vw] aspect-square
 						${div.color == "yellow" ? "bg-yellow-500" : div.color == "red" ? "bg-red-500" : "bg-black"} 
 						text-3xl text-${div.number === "K" ? "[#181818]" : "[#e6e6e6]"} font-bold
 						flex flex-shrink-0 justify-center items-center select-none`}
 					>{div.number}</div>
 				))
-			}
-			{
-				setTimeout(() => {bet(4)}, 3000)
 			}
 		</div>
 		<div className="h-[5%] m-auto flex justify-center text-xl select-none">|</div>
@@ -269,7 +270,7 @@ function Roulette() {
 					<div key={index} className={`
 					w-[7%] h-10 select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#525864]"}
 					m-1 p-2 rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#454952]"}
-					`} onClick={changeInput(div.text)}>
+					`} onClick={()=>{ changeInput(div.text) }}>
 						{div.text}
 					</div>
 				))

@@ -48,7 +48,7 @@ function Roulette() {
   	return (
     <>
 	<div id="container" className="">
-		<div className="h-[5%] w-[0.2vw] bg-white m-auto flex justify-center">|</div>
+		<div className="h-[2vh] w-[0.2vw] bg-white m-auto flex justify-center"></div>
 		<div  id="roulette" ref={rouletteRef} className="h-[20%] flex justify-start items-center rounded-lg w-full relative transition-transform duration-[5s]">
 			{
 				[
@@ -222,12 +222,12 @@ function Roulette() {
 						w-[5vw] aspect-square
 						${div.color == "yellow" ? "bg-yellow-500" : div.color == "red" ? "bg-red-500" : "bg-black"} 
 						text-3xl text-${div.number === "K" ? "[#181818]" : "[#e6e6e6]"} font-bold
-						flex flex-shrink-0 justify-center items-center select-none`}
+						flex flex-shrink-0 justify-center items-center select-none text-[2vw]`}
 					>{div.number}</div>
 				))
 			}
 		</div>
-		<div className="h-[5%] m-auto flex justify-center text-xl select-none">|</div>
+		<div className="h-[2vh] w-[0.2vw] bg-white m-auto flex justify-center"></div>
 	</div>
 	<div id="rouletteHistory" className="w-2/3 h-5% flex gap-3 my-1">
 		{

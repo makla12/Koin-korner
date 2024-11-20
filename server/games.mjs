@@ -1,13 +1,5 @@
 import  crypto  from "crypto";
-
-const salt = "000000000000000000074ec3f344eb9e5a3304c77368a8df56a12b0319065fc9";
-
-function saltHash(hash) {
-  return crypto
-    .createHmac("sha256", hash)
-    .update(salt)
-    .digest("hex");
-}
+import { getServerSeed, getPublicSeed } from "./sql.mjs";
 
 function generateHash(seed) {
   return crypto
@@ -16,6 +8,21 @@ function generateHash(seed) {
     .digest("hex");
 }
 
+
+
+//Roulette
+async function rollFromSeed(serverSeed, publicSeed, round){
+	console.log(serverSeed, publicSeed, round);
+	let hash = crypto.createHash("sha256").update(serverSeed).update(publicSeed).update(round).digest("hex");
+	let roll = Number("0x" + hash.substring(0,8)) % 15;
+	console.log(roll);
+}
+
+
+
+
+
+//Crash
 function divisible(hash, mod) {
   var val = 0;
 
@@ -44,4 +51,4 @@ function crashPointFromHash(serverSeed) {
   return Math.floor((100 * e - h) / (e - h)) / 100.0;
 }
 
-export default crashPointFromHash;
+export { crashPointFromHash, rollFromSeed };

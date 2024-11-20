@@ -67,7 +67,7 @@ function Chat() {
             {socket == undefined ? "Loading..." :
             <div className="flex justify-center items-center w-full p-1">
                 <input type="text" id="messageInput" className="
-                    w-10/12 h-full rounded-lg mr-1 p-1
+                    w-10/12 h-full rounded-lg mr-1 p-2
                     text-base bg-[#a0a1a3] dark:bg-[#5d6066]"
                 />
 

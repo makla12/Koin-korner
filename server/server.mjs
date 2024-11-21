@@ -3,13 +3,26 @@ import session from 'express-session';
 import cors from 'cors';
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { logIn, register, saveMessage, getMessages } from "./src/mysql.mjs";
+import { logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed } from "./sql.mjs";
+import { rollFromSeed } from "./games.mjs"
 import nodemailer from "nodemailer";
+import dotenv from 'dotenv';
+dotenv.config();
 
+const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user:process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+    },
+});
 
 //Ustawienia sesji i CORS
 const sessionMiddleware = session({
-    secret: "kksecret",
+    secret:process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
 });
@@ -65,12 +78,29 @@ app.post("/auth/register", async (req, res) => {
 
 //Zdefiniowanie routów związanych z aplikacją
 
-/*	WIP		Dodanie odczytu danych z bazy danych*/
-
 app.get("/app/chatHistory",async (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
     res.json({messages:await getMessages()});
 });
 
+app.post("/app/sendMail", (req, res)=>{
+    console.log(req.body.email);
+    const mailOptions = {
+        to: req.body.email,
+        subject: "Hello from Nodemailer",
+        text: "This is a test email sent using Nodemailer.",
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error("Error sending email: ", error);
+        }
+        else {
+            console.log("Email sent: ", info.response);
+        }
+    });
+
+    res.json({suc:true});
+});
 
 
 
@@ -115,8 +145,6 @@ chatNS.on("connection", (socket) => {
     });
 
 	//Reakcja i odpowiedz serwera na wysłanie wiadomości
-
-	/*	WIP		Dodanie zapisu do bazy danych*/
 
     socket.on("sendMessage", (message) => {
         if(!req.session.isLoggedIn){ //Sprawdzenie czy użytkownik jest zalogowany

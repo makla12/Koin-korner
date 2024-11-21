@@ -7,15 +7,76 @@ function Roulette() {
 	const inputRef = useRef(null);
 	const chosenBet = null;
 	useEffect(()=>{
-		// setTimeout(() => {bet(4)}, 1000)
-	},[])
+		setTimeout(() => {bet(13)}, 500);
+	},[]);
 	function bet(number) {
 		if (rouletteRef.current) {
-			let steps = 0;
-		if (number == 4) {
-			steps = 5 * 15;// + (([-1, 1][Math.floor(Math.random() * 2)]) * Math.random() * 2);
-		}
-		rouletteRef.current.style.transform = `translateX(-${steps}vw)`;
+			let steps = 5 * 15 * 9 + Math.random() * 4 - 2 - 1.3;
+			switch(number){
+				case 1:
+					steps += 5 * -6;
+					break;
+
+				case 2:
+					steps += 5 * -4;
+					break;
+
+				case 3:
+					steps += 5 * -2;
+					break;
+
+				case 4:
+					steps += 5 * 0;
+					break;
+
+				case 5:
+					steps += 5 * 2;
+					break;
+
+				case 6:
+					steps += 5 * 4;
+					break;
+
+				case 7:
+					steps += 5 * 6;
+					break;
+
+				case 8:
+					steps += 5 * -5;
+					break;
+
+				case 9:
+					steps += 5 * -3;
+					break;
+
+				case 10:
+					steps += 5 * -1;
+					break;
+
+				case 11:
+					steps += 5 * 1;
+					break;
+
+				case 12:
+					steps += 5 * 3;
+					break;
+
+				case 13:
+					steps += 5 * 5;
+					break;
+
+				case 14:
+					steps += 5 * 7;
+					break;
+
+				case 0:
+					steps += 5 * -7;
+					break;
+
+				default:
+					steps = 0;
+			}
+			rouletteRef.current.style.transform = `translateX(-${steps}vw)`;
 		}
 	}
 
@@ -47,8 +108,11 @@ function Roulette() {
 
   	return (
     <>
+
 	<div id="container" className="">
-		<div className="h-[5%] w-[0.2vw] bg-white m-auto flex justify-center">|</div>
+
+{/* Roulette */}
+		<div className="h-[2vh] w-[0.2vw] bg-white m-auto flex justify-center"></div>
 		<div  id="roulette" ref={rouletteRef} className="h-[20%] flex justify-start items-center rounded-lg w-full relative transition-transform duration-[5s]">
 			{
 				[
@@ -222,14 +286,16 @@ function Roulette() {
 						w-[5vw] aspect-square
 						${div.color == "yellow" ? "bg-yellow-500" : div.color == "red" ? "bg-red-500" : "bg-black"} 
 						text-3xl text-${div.number === "K" ? "[#181818]" : "[#e6e6e6]"} font-bold
-						flex flex-shrink-0 justify-center items-center select-none`}
+						flex flex-shrink-0 justify-center items-center select-none text-[2vw]`}
 					>{div.number}</div>
 				))
 			}
 		</div>
-		<div className="h-[5%] m-auto flex justify-center text-xl select-none">|</div>
+		<div className="h-[2vh] w-[0.2vw] bg-white m-auto flex justify-center"></div>
 	</div>
-	<div id="rouletteHistory" className="w-2/3 h-5% flex gap-3 my-1">
+
+{/* Roulette history */}
+	<div id="rouletteHistory" className="w-2/3 h-5% flex gap-[1%] my-[0.1%]">
 		{
 			[	
 				{color: "yellow", number: "K"},
@@ -244,20 +310,21 @@ function Roulette() {
 				{color: "red", number: "5"}
 			].map((div, index) => (
 				<div key={index} className={`
-					w-10 h-full
+					w-[4%] aspect-square
 					${div.color == "yellow" ? "bg-yellow-500" : div.color == "red" ? "bg-red-500" : "bg-black"} 
-					text-3xl text-${div.number === "K" ? "[#181818]" : "[#e6e6e6]"} p-1 text-xl
+					text-[1vw] ${div.number === "K" ? "text-[#181818] font-bold" : "text-[#e6e6e6]"} p-[0.1%] text-xl
 					rounded-full flex flex-shrink-0 justify-center items-center select-none`}
 				>{div.number}</div>
 			))
 		}
 	</div>
 	
+{/* Roulette bet input */}
 	<div className="w-full h-1/10 flex justify-center items-center">
 		<form action="" className="w-full flex justify-center items-center">
 			<input type="number" name="bet" id="bet" ref={inputRef} placeholder="Zakład" className="
-			w-1/2 h-10 rounded-lg p-2 m-1 bg-[#525864] select-none
-			"/>
+				w-1/2 h-full rounded-lg p-[0.8%] bg-[#525864] select-none text-[1vw]"
+			/>
 			{
 				[
 					{text: "+10"},
@@ -268,9 +335,10 @@ function Roulette() {
 					{text: "MAX"}
 				].map((div, index) => (
 					<div key={index} className={`
-					w-[7%] h-10 select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#525864]"}
-					m-1 p-2 rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#454952]"}
-					`} onClick={()=>{ changeInput(div.text) }}>
+						w-[7%] h-full select-none flex justify-center items-center text-[1vw] ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#525864]"}
+						m-[0.5%] p-[0.6%] rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#454952]"}`} 
+						onClick={()=>{ changeInput(div.text) }}
+					>
 						{div.text}
 					</div>
 				))
@@ -278,12 +346,14 @@ function Roulette() {
 		</form>
 	</div>
 
-	<div className="w-full h-1/2 flex justify-around p-4">
-		{/* table */}
-		<div className="w-[30%] flex flex-col">
-			<div className="w-full h-1/5 p-1 flex justify-between items-center bg-[#525864] rounded-xl">
-				<div className="w-1/3 h-full px-1 py-2 bg-red-600 flex justify-center items-center text-sm rounded-xl select-none">CZERWONE</div>
-				<div className="w-2/3 h-full flex justify-around items-center px-1 py-2">
+{/* Bet tables */}
+	<div className="w-full h-1/2 flex justify-around p-[1%]">
+
+{/* Reds */}
+		<div className="w-[30%] flex flex-col"> {/* Bets */}
+			<div className="w-full h-1/5 p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
+				<div className="w-1/3 h-full px-[1%] py-[2%] bg-red-600 flex justify-center items-center text-[0.8vw] rounded-xl select-none">CZERWONE</div>
+				<div className="w-2/3 h-full flex justify-around items-center">
 				{
 						[
 							{text: 1},
@@ -294,7 +364,7 @@ function Roulette() {
 							{text: 6},
 							{text: 7},
 						].map((div, index) => (
-							<div key={index} className="w-4 h-8 px-1 bg-red-600 flex justify-center items-center text-sm rounded-xl select-none">
+							<div key={index} className="w-[12%] h-full px-[1%] bg-red-600 flex justify-center items-center text-[1vw] rounded-xl select-none">
 								{div.text}
 							</div>
 						))
@@ -302,10 +372,12 @@ function Roulette() {
 				</div>
 			</div>
 
-			<div className="w-full h-[15%] flex justify-center items-center p-2 bg-[#525864] rounded-xl my-1">
-				<p className="text-center text-lg">100</p>
+{/* Yout bet */}
+			<div className="w-full h-[15%] flex justify-center items-center p-[2%] bg-[#525864] rounded-xl my-[1%]">
+				<p className="text-center text-[1vw]">100</p>
 			</div>
 
+{/* All bets */}
 			<div className="w-full h-[65%] p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
@@ -327,18 +399,20 @@ function Roulette() {
 			</div>
 		</div>
 
-		<div className="w-[30%] flex flex-col">
-			<div className="w-full h-1/5 flex justify-between items-center p-2 bg-[#525864] rounded-xl">
-				<div className="w-2/5 h-full mx-[0.125rem] px-3 py-2 bg-amber-500 flex justify-center items-center text-sm rounded-xl select-none">PARZYSTE</div>
-				<div className="w-1/5 h-full mx-[0.125rem] px-3 py-2 bg-amber-500 flex justify-center items-center text-sm text-black font-bold rounded-xl select-none">K</div>
-				<div className="w-2/5 h-full mx-[0.125rem] px-3 py-2 bg-amber-500 flex justify-center items-center text-sm rounded-xl select-none">NIEPARZYSTE</div>
+{/* Yellow, odd and even */}
+		<div className="w-[30%] flex flex-col"> {/* Bets */}
+			<div className="w-full h-1/5 flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
+				<div className="w-[30%] h-full m-[1%] px-[1%] py-[2%] bg-amber-500 flex justify-center items-center text-[0.9vw] rounded-xl select-none">PARZYSTE</div>
+				<div className="w-[40%] h-full m-[1%] px-[1%] py-[2%] bg-amber-500 flex justify-center items-center text-[0.9vw] text-black font-bold rounded-xl select-none">K</div>
+				<div className="w-[30%] h-full m-[1%] px-[1%] py-[2%] bg-amber-500 flex justify-center items-center text-[0.9vw] rounded-xl select-none">NIEPARZYSTE</div>
 			</div>
 				
-
-			<div className="w-full h-[15%] flex justify-center items-center p-2 bg-[#525864] rounded-xl my-1">
-				<p className="text-center text-lg">100</p>
+{/* Yout bet */}
+			<div className="w-full h-[15%] flex justify-center items-center p-[2%] bg-[#525864] rounded-xl my-[1%]">
+				<p className="text-center text-[1vw]">100</p>
 			</div>
 
+{/* All bets */}
 			<div className="w-full h-[65%] p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
@@ -360,10 +434,11 @@ function Roulette() {
 			</div>
 		</div>
 
-		<div className="w-[30%] flex flex-col">
-			<div className="w-full h-1/5 p-1 flex justify-between items-center bg-[#525864] rounded-xl">
-				<div className="w-1/3 h-full px-1 py-2 bg-[#18181b] flex justify-center items-center text-sm rounded-xl select-none">CZARNE</div>
-				<div className="w-2/3 h-full flex justify-around items-center p-1">
+{/* Black */}
+		<div className="w-[30%] flex flex-col"> {/* Bets */}
+			<div className="w-full h-1/5 p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
+				<div className="w-1/3 h-full px-[1%] py-[2%] bg-[#18181b] flex justify-center items-center text-[0.8vw] rounded-xl select-none">CZARNE</div>
+				<div className="w-2/3 h-full flex justify-around items-center">
 				{
 						[
 							{text: 8},
@@ -374,7 +449,7 @@ function Roulette() {
 							{text: 13},
 							{text: 14},
 						].map((div, index) => (
-							<div key={index} className="w-4 h-8 px-1 bg-[#18181b] flex justify-center items-center text-sm rounded-xl select-none">
+							<div key={index} className="w-[12%] h-full px-[1%] bg-[#18181b] flex justify-center items-center text-[1vw] rounded-xl select-none">
 								{div.text}
 							</div>
 						))
@@ -382,10 +457,12 @@ function Roulette() {
 				</div>
 			</div>
 
+{/* Yout bet */}
 			<div className="w-full h-[15%] flex justify-center items-center p-2 bg-[#525864] rounded-xl my-1">
 				<p className="text-center text-lg">100</p>
 			</div>
 
+{/* All bets */}
 			<div className="w-full h-[65%] p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">

@@ -20,7 +20,7 @@ function RoulettePage() {
   	return (
     <>
       	<MainNav isLoggedIn={isLoggedIn}/>
-		<div className="flex justify-between items-center p-5 h-[87.5vh]">
+		<div className="w-full flex justify-between items-center p-[0.8%] h-[87.5vh]">
 			<Chat />
 			<GameContainer> 
 				<Roulette />

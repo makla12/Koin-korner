@@ -5,10 +5,10 @@ function GamesNav() {
         bg-[#d3d3d3] dark:bg-[#27272a] rounded-full"
     >
         {[
-            {name: "Ruletka", href: "/Roulette"},
-            {name: "Crash", href: "/Crash"},
-            {name: "Dice", href: "/Dice"},
-            {name: "Tower", href: "/Tower"}
+            {name: "Ruletka", href: "/roulette"},
+            {name: "Crash", href: "/crash"},
+            {name: "Dice", href: "/dice"},
+            {name: "Tower", href: "/tower"}
         ]
         .map((div, index) => (
             <a key={index} href={div.href} className="

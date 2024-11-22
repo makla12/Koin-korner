@@ -7,7 +7,7 @@ import { Unstable_Popup as Popup } from '@mui/base';
 import { useState } from 'react';
 import axios from 'axios';
 
-function MainNav({ isLoggedIn }) {
+function MainNav({ isLoggedIn, username }) {
     const [themeSrc, setThemeSrc] = useState(darkTheme);
     const [anchor, setAnchor] = useState(null);
     const [anchor2, setAnchor2] = useState(null);
@@ -148,12 +148,15 @@ function MainNav({ isLoggedIn }) {
                             bg-[#f3f3f3] dark:bg-[#303030] text-[#303030] dark:text-[#f3f3f3]
                             border-1 border-[#8b8a8a] w-64 h-24 select-none mr-4"
                         >
-                                <div className='h-10 flex items-center justify-center bg-[#303030] cursor-pointer hover:bg-[#202020]' 
-                                    onClick={async ()=>{
-                                        axios.post("http://localhost:8080/auth/logOut", {}, {withCredentials:true});
-                                        window.location.reload();
-                                    }}
-                                >Wyloguj</div>
+                            <div className='h-10 text-xl flex items-center justify-center'>
+                                {username}
+                            </div>
+                            <div className='h-10 flex items-center justify-center bg-[#303030] cursor-pointer hover:bg-[#202020]' 
+                                onClick={async ()=>{
+                                    axios.post("http://localhost:8080/auth/logOut", {}, {withCredentials:true});
+                                    window.location.reload();
+                                }}
+                            >Wyloguj</div>
                         </div>
                     </Popup>
                 </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Paź 28, 2024 at 10:00 AM
+-- Generation Time: Lis 22, 2024 at 02:46 PM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.2.12
 
@@ -44,7 +44,7 @@ CREATE TABLE `bets` (
 CREATE TABLE `chat` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `date` date NOT NULL,
+  `date` datetime NOT NULL,
   `message` varchar(200) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -57,9 +57,9 @@ CREATE TABLE `chat` (
 CREATE TABLE `games` (
   `id` int(11) NOT NULL,
   `round` int(11) NOT NULL,
-  `game_type` int(11) NOT NULL,
   `score` decimal(9,2) DEFAULT NULL,
-  `seed_id` int(11) NOT NULL
+  `seed_id` int(11) NOT NULL,
+  `public_seed_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -73,18 +73,57 @@ CREATE TABLE `game_types` (
   `name` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `game_types`
+--
+
+INSERT INTO `game_types` (`id`, `name`) VALUES
+(1, 'Roulette'),
+(2, 'Tower'),
+(3, 'Crash'),
+(4, 'Dice');
+
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `server_sead`
+-- Struktura tabeli dla tabeli `public_seed`
 --
 
-CREATE TABLE `server_sead` (
+CREATE TABLE `public_seed` (
+  `id` int(11) NOT NULL,
+  `seed` char(16) NOT NULL,
+  `date` date NOT NULL,
+  `game_type` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `public_seed`
+--
+
+INSERT INTO `public_seed` (`id`, `seed`, `date`, `game_type`) VALUES
+(4, '4275468874161608', '2024-11-18', 1),
+(5, '7647845251531785', '2024-11-20', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `server_seed`
+--
+
+CREATE TABLE `server_seed` (
   `id` int(11) NOT NULL,
   `seed` char(64) NOT NULL,
   `hashed_seed` char(64) NOT NULL,
   `date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `server_seed`
+--
+
+INSERT INTO `server_seed` (`id`, `seed`, `hashed_seed`, `date`) VALUES
+(13, '6949e4d3de322556689818bb78259da49d72a39860474e2350dbb1979895094d', '85af28015f59ff0d7eab706816ab9b1302d48f9062665d2272beb76dd8439add', '2024-11-18'),
+(14, '8b05e69470a28003255983071d33329e4420ede79cd3dd531aa1ea913b8e398d', '90dc00450e307baff9a3244a7eacd809fec6fa65f8b657abf5a63a4801175127', '2024-11-20');
 
 -- --------------------------------------------------------
 
@@ -96,15 +135,17 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(64) NOT NULL,
   `pass` char(64) NOT NULL,
-  `balance` decimal(20,2) NOT NULL
+  `balance` decimal(20,2) NOT NULL,
+  `email` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `pass`, `balance`) VALUES
-(1, 'makla', '1234', 5.00);
+INSERT INTO `users` (`id`, `username`, `pass`, `balance`, `email`) VALUES
+(22, 'makla', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 5.00, '1234makla@gmail.com'),
+(23, 'maklaa', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 5.00, '11234makla@gmail.com');
 
 --
 -- Indeksy dla zrzutów tabel
@@ -130,7 +171,6 @@ ALTER TABLE `chat`
 --
 ALTER TABLE `games`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `game_type` (`game_type`),
   ADD KEY `seed_id` (`seed_id`);
 
 --
@@ -140,17 +180,27 @@ ALTER TABLE `game_types`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeksy dla tabeli `server_sead`
+-- Indeksy dla tabeli `public_seed`
 --
-ALTER TABLE `server_sead`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `public_seed`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `date` (`date`),
+  ADD KEY `game_type` (`game_type`);
+
+--
+-- Indeksy dla tabeli `server_seed`
+--
+ALTER TABLE `server_seed`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `date` (`date`);
 
 --
 -- Indeksy dla tabeli `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -166,7 +216,7 @@ ALTER TABLE `bets`
 -- AUTO_INCREMENT for table `chat`
 --
 ALTER TABLE `chat`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `games`
@@ -178,19 +228,25 @@ ALTER TABLE `games`
 -- AUTO_INCREMENT for table `game_types`
 --
 ALTER TABLE `game_types`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT for table `server_sead`
+-- AUTO_INCREMENT for table `public_seed`
 --
-ALTER TABLE `server_sead`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `public_seed`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `server_seed`
+--
+ALTER TABLE `server_seed`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Constraints for dumped tables
@@ -213,8 +269,13 @@ ALTER TABLE `chat`
 -- Constraints for table `games`
 --
 ALTER TABLE `games`
-  ADD CONSTRAINT `games_ibfk_1` FOREIGN KEY (`game_type`) REFERENCES `game_types` (`id`),
-  ADD CONSTRAINT `games_ibfk_2` FOREIGN KEY (`seed_id`) REFERENCES `server_sead` (`id`);
+  ADD CONSTRAINT `games_ibfk_2` FOREIGN KEY (`seed_id`) REFERENCES `server_seed` (`id`);
+
+--
+-- Constraints for table `public_seed`
+--
+ALTER TABLE `public_seed`
+  ADD CONSTRAINT `public_seed_ibfk_1` FOREIGN KEY (`game_type`) REFERENCES `game_types` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

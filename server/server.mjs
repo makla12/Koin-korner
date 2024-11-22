@@ -3,23 +3,13 @@ import session from 'express-session';
 import cors from 'cors';
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed } from "./sql.mjs";
+import { logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, checkUsernameAndEmail } from "./sql.mjs";
 import { rollFromSeed } from "./games.mjs"
 import nodemailer from "nodemailer";
 import dotenv from 'dotenv';
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user:process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-    },
-});
-
+const dev = true;
 //Ustawienia sesji i CORS
 const sessionMiddleware = session({
     secret:process.env.SESSION_SECRET,
@@ -65,41 +55,84 @@ app.post("/auth/logOut", (req, res)=>{ //Wylogowanie użytkownika
     res.json({suc:true});
 });
 
+//Rejestracja użytkownika
+const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user:process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+    },
+});
+
+const generateCode = () => {
+    let code = "";
+    for(let i = 0; i < 4; i++){
+        code += Math.floor(Math.random() * 10).toString();
+    }
+    return code;
+}
+
+const sendVerifyEmail = (email) => {
+    let code = generateCode();
+    if(dev) code = "0000";
+    const mailOptions = {
+        to: email,
+        subject: "Kod weryfikacyjny do Koin Korner",
+        text: `Twój kod weryfikacyjny to ${code}`,
+    };
+    if(!dev){
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Error sending email: ", error);
+            }
+            else {
+                console.log("Email sent: ", info.response);
+            }
+        });
+    }
+    return code;
+};
+
 app.post("/auth/register", async (req, res) => {
     if(req.body.email == undefined || req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
+        res.json({suc:false})
         return 0;
     }
-    const id = await register(req.body.email, req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
-    req.session.isLoggedIn = id != null;
-    req.userId = id;
-    req.session.username = req.body.username;
-    res.json({suc:id != null}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
+    req.session.regUsername = req.body.username;
+    req.session.regEmail = req.body.email;
+    req.session.regPassword = req.body.password;
+
+    const canLogin = await checkUsernameAndEmail(req.body.username, req.body.email);
+    if(canLogin){
+        const code = sendVerifyEmail(req.body.email);
+        req.session.code = code;
+    }
+    res.json({suc:canLogin});
+});
+
+app.post("/auth/registerConfirm", async (req, res) => {
+    if(req.body.code == undefined){ //Sprawdzienie czy request użytkownika posiada dane
+        res.json({suc:false});
+        return 0;
+    }
+    if(req.body.code != req.session.code){
+        res.json({suc:false});
+        return 0;
+    }
+    const registerId = Number(await register(req.session.regEmail, req.session.regUsername, req.session.regPassword));
+    console.log(registerId);
+    req.session.isLoggedIn = registerId != 0;
+    req.session.userId = registerId;
+    if(registerId != 0) req.session.username = req.session.regUsername;
+    res.json({suc:registerId != 0});
 });
 
 //Zdefiniowanie routów związanych z aplikacją
-
 app.get("/app/chatHistory",async (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
     res.json({messages:await getMessages()});
-});
-
-app.post("/app/sendMail", (req, res)=>{
-    console.log(req.body.email);
-    const mailOptions = {
-        to: req.body.email,
-        subject: "Hello from Nodemailer",
-        text: "This is a test email sent using Nodemailer.",
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error("Error sending email: ", error);
-        }
-        else {
-            console.log("Email sent: ", info.response);
-        }
-    });
-
-    res.json({suc:true});
 });
 
 

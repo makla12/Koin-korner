@@ -7,10 +7,12 @@ import { Dice } from '@/components/games/Dice'
 
 function DicePage() {
     const [ isLoggedIn, setIsLoggedIn ] = useState(null);
+    const [username, setUsername] = useState(null);
 
     const fetchLogin = async () => {
         const res = await axios.get("http://" + window.location.hostname + ":8080/auth/checkLogIn",{withCredentials:true});
         setIsLoggedIn(res.data.isLoggedIn);
+        setUsername(res.data.username);
 
     }
     useEffect(()=>{
@@ -19,7 +21,7 @@ function DicePage() {
 	
   	return (
 	<>
-		<MainNav isLoggedIn={isLoggedIn}/>
+		<MainNav isLoggedIn={isLoggedIn} username={username}/>
 		<div className="flex justify-between items-center p-5 h-[87.5vh]">
 			<Chat />
 			<GameContainer> 

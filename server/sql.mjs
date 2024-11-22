@@ -24,6 +24,21 @@ const logIn = async (username, password) => {
 	}
 }
 
+const checkUsernameAndEmail = async (username, email) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		const rows = await conn.query("SELECT * FROM users WHERE username  = ? OR email = ?", [username, email]);
+		if(rows.length == 0){
+			return true;
+		}
+		return false;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+
 //Funkcaj rejestrująca użytkownika
 const register = async (email, username, password) => {
 	let conn;
@@ -116,4 +131,4 @@ const getPublicSeed = async (gameType) => {
 		if(conn) conn.release();
 	}
 }
-export { logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed };
+export { logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, checkUsernameAndEmail };

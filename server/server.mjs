@@ -3,18 +3,22 @@ import session from 'express-session';
 import cors from 'cors';
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { LogIn } from "./src/mysql.mjs";
+import { logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, checkUsernameAndEmail } from "./sql.mjs";
+import { rollFromSeed } from "./games.mjs"
+import nodemailer from "nodemailer";
+import dotenv from 'dotenv';
+dotenv.config();
 
-
+const dev = true;
 //Ustawienia sesji i CORS
 const sessionMiddleware = session({
-    secret: "kksecret",
+    secret:process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
 });
 
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://192.168.88.24:3000"],
     methods: ['POST', 'GET'],
     credentials: true
 };
@@ -30,7 +34,7 @@ app.use(cors(corsOptions));
 //Zdefiniowanie routów związanych autoryzacji
 app.get("/auth/checkLogIn", (req, res) => { //Odsyła czy użytkownik jest zalogowany oraz nazwę użytkownika
     res.json({
-        isLogedIn:(req.session.isLogedIn == undefined ? false : req.session.isLogedIn),
+        isLoggedIn:(req.session.isLoggedIn == undefined ? false : req.session.isLoggedIn),
         username:req.session.username
     });
 });
@@ -39,29 +43,97 @@ app.post("/auth/logIn",async (req, res)=>{ //Próba zalogowania użytkownika
     if(req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
         return 0;
     }
-    let loginRes = await LogIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
-    req.session.isLogedIn = loginRes == 0;
+    const id = await logIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
+    req.session.isLoggedIn = id != 0;
+    req.session.userId = id;
     req.session.username = req.body.username;
-    res.json({suc:loginRes == 0}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
+    res.json({suc:id != null}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
 });
 
 app.post("/auth/logOut", (req, res)=>{ //Wylogowanie użytkownika
-    req.session.isLogedIn = false;
+    req.session.isLoggedIn = false;
     res.json({suc:true});
 });
 
-
-//Zdefiniowanie routów związanych z aplikacją
-
-/*	WIP		Dodanie odczytu danych z bazy danych*/
-
-app.get("/app/chatHistory", (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
-    res.json({messages:[
-        {user:"makla", time:"13:46", message:"Rudy to cwel"},
-        {user:"rudy", time:"13:47", message:"To prawda"}
-    ]});
+//Rejestracja użytkownika
+const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user:process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+    },
 });
 
+const generateCode = () => {
+    let code = "";
+    for(let i = 0; i < 4; i++){
+        code += Math.floor(Math.random() * 10).toString();
+    }
+    return code;
+}
+
+const sendVerifyEmail = (email) => {
+    let code = generateCode();
+    if(dev) code = "0000";
+    const mailOptions = {
+        to: email,
+        subject: "Kod weryfikacyjny do Koin Korner",
+        text: `Twój kod weryfikacyjny to ${code}`,
+    };
+    if(!dev){
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Error sending email: ", error);
+            }
+            else {
+                console.log("Email sent: ", info.response);
+            }
+        });
+    }
+    return code;
+};
+
+app.post("/auth/register", async (req, res) => {
+    if(req.body.email == undefined || req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
+        res.json({suc:false})
+        return 0;
+    }
+    req.session.regUsername = req.body.username;
+    req.session.regEmail = req.body.email;
+    req.session.regPassword = req.body.password;
+
+    const canLogin = await checkUsernameAndEmail(req.body.username, req.body.email);
+    if(canLogin){
+        const code = sendVerifyEmail(req.body.email);
+        req.session.code = code;
+    }
+    res.json({suc:canLogin});
+});
+
+app.post("/auth/registerConfirm", async (req, res) => {
+    if(req.body.code == undefined){ //Sprawdzienie czy request użytkownika posiada dane
+        res.json({suc:false});
+        return 0;
+    }
+    if(req.body.code != req.session.code){
+        res.json({suc:false});
+        return 0;
+    }
+    const registerId = Number(await register(req.session.regEmail, req.session.regUsername, req.session.regPassword));
+    console.log(registerId);
+    req.session.isLoggedIn = registerId != 0;
+    req.session.userId = registerId;
+    if(registerId != 0) req.session.username = req.session.regUsername;
+    res.json({suc:registerId != 0});
+});
+
+//Zdefiniowanie routów związanych z aplikacją
+app.get("/app/chatHistory",async (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
+    res.json({messages:await getMessages()});
+});
 
 
 
@@ -107,21 +179,22 @@ chatNS.on("connection", (socket) => {
 
 	//Reakcja i odpowiedz serwera na wysłanie wiadomości
 
-	/*	WIP		Dodanie zapisu do bazy danych*/
-
     socket.on("sendMessage", (message) => {
-        if(!req.session.isLogedIn){ //Sprawdzenie czy użytkownik jest zalogowany
+        if(!req.session.isLoggedIn){ //Sprawdzenie czy użytkownik jest zalogowany
             return ;
         }
 		//Zdobycie teraźniejszej godziny
-        const minuteNow = (Date.now() % (1000 * 60 * 60 * 24)) / 1000 / 60;
-        const hours = Math.floor(minuteNow / 60) + 1;
-        const minutes = Math.floor(minuteNow % 60);
-
+        const datenow = new Date(Date.now()); 
+        const year = datenow.getFullYear();
+        const month = datenow.getMonth() + 1;
+        const day = datenow.getDate();
+        const time = datenow.toTimeString().substring(0,8);
+        const dateSting = `${year}-${month < 10 ? "0" : ""}${month}-${day} ${time}`;
+        saveMessage(req.session.userId, dateSting, message);
 		//Wysłanie wiadomości do użytkowników
         chatNS.emit("message", {
-            user:req.session.username,
-            time:`${hours}:${minutes}`,
+            username:req.session.username,
+            date:dateSting,
             message:message
         });
     });

@@ -12,10 +12,9 @@ function generateHash(seed) {
 
 //Roulette
 async function rollFromSeed(serverSeed, publicSeed, round){
-	console.log(serverSeed, publicSeed, round);
 	let hash = crypto.createHash("sha256").update(serverSeed).update(publicSeed).update(round).digest("hex");
 	let roll = Number("0x" + hash.substring(0,8)) % 15;
-	console.log(roll);
+  return roll;
 }
 
 
@@ -25,7 +24,6 @@ async function rollFromSeed(serverSeed, publicSeed, round){
 //Crash
 function divisible(hash, mod) {
   var val = 0;
-
   var o = hash.length % 4;
   for (var i = o > 0 ? o - 4 : 0; i < hash.length; i += 4) {
     val = ((val << 16) + parseInt(hash.substring(i, i + 4), 16)) % mod;

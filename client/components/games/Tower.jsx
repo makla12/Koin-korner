@@ -1,34 +1,90 @@
-import {useState, useRef} from "react";
+import {useState, useRef, useEffect} from "react";
 import { TowerLevel } from "../elements/TowerLevel";
 
 function Tower() {
 	const inputRef = useRef(null);
 	const [towerDifficulty, setTowerDifficulty] = useState(1);
+	const [currentLevel, setCurrentLevel] = useState(0);
+	const [loseLevel, setLoseLevel] = useState([0, 4, 4, 2, 3, 1, 2, 5, 0, 3]);
+	const multipliers = [
+		[
+			{multiplier: "x34.526"},
+			{multiplier: "x24.228"},
+			{multiplier: "x17.002"},
+			{multiplier: "x11.931"},
+			{multiplier: "x8.373"},
+			{multiplier: "x5.875"},
+			{multiplier: "x4.123"},
+			{multiplier: "x2.893"},
+			{multiplier: "x2.03"},
+			{multiplier: "x1.425"}
+		],
+		[
+			{multiplier: "x613.106"},
+			{multiplier: "x322.687"},
+			{multiplier: "x169.836"},
+			{multiplier: "x89.387"},
+			{multiplier: "x47.045"},
+			{multiplier: "x24.76"},
+			{multiplier: "x13.032"},
+			{multiplier: "x6.858"},
+			{multiplier: "x3.61"},
+			{multiplier: "x1.9"}
+		],
+		[
+			{multiplier: "x35354.817"},
+			{multiplier: "x12405.199"},
+			{multiplier: "x4352.701"},
+			{multiplier: "x1527.263"},
+			{multiplier: "x535.881"},
+			{multiplier: "x188.028"},
+			{multiplier: "x65.975"},
+			{multiplier: "x23.149"},
+			{multiplier: "x8.122"},
+			{multiplier: "x2.85"}
+		],
+];
 
 	function changeInput(action) {
 		if (inputRef.current) {
 			switch (action) {
+				case "0":
+					inputRef.current.value = 0;
+					betRound();
+					break;
 				case "+10":
-					console.log(Number(inputRef.current.value))
 					inputRef.current.value = Number(inputRef.current.value) + 10;
+					betRound();
 					break;
 				case "+100":
 					inputRef.current.value = Number(inputRef.current.value) + 100;
+					betRound();
 					break;
 				case "+1000":
 					inputRef.current.value = Number(inputRef.current.value) + 1000;
+					betRound();
 					break;
 				case "1/2":
 					inputRef.current.value = Number(inputRef.current.value) / 2;
+					betRound();
 					break;
 				case "x2":
 					inputRef.current.value = Number(inputRef.current.value) * 2;
+					betRound();
 					break;
 				case "MAX":
 					inputRef.current.value = balance;
 					break;
 			}
 		}
+	}
+
+	function betRound() {
+		inputRef.current.value = Math.floor(Number(inputRef.current.value));
+	}
+
+	function reveal(e) {
+
 	}
 
   	return (
@@ -84,6 +140,7 @@ function Tower() {
 					<div className="flex flex-wrap justify-center items-center">
 						{
 							[
+								{text: "0"},
 								{text: "+10"},
 								{text: "+100"},
 								{text: "+1000"},
@@ -92,7 +149,7 @@ function Tower() {
 								{text: "MAX"}
 							].map((div, index) => (
 								<div key={index} className={`
-								w-1/4 select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#27262a]"}
+								w-${div.text == "MAX" ? "3/4" : "1/4"} select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#27262a]"}
 								m-1 p-2 rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#383a3f]"}
 								`} onClick={()=>{ changeInput(div.text) }}>
 									{div.text}
@@ -107,19 +164,9 @@ function Tower() {
 		<div className="w-[70%] h-[95%] m-3 py-2 bg-[#525864] rounded-lg flex flex-col justify-between">
 			<div className="w-full h-4/5 px-2">
 			{
-				[
-					{multiplier: "x34.526"},
-					{multiplier: "x24.228"},
-					{multiplier: "x17.002"},
-					{multiplier: "x11.931"},
-					{multiplier: "x8.373"},
-					{multiplier: "x5.875"},
-					{multiplier: "x4.123"},
-					{multiplier: "x2.893"},
-					{multiplier: "x2.03"},
-					{multiplier: "x1.425"}
-				].map((div, key) => (
-					<TowerLevel multiplier={div.multiplier} key={key}/>
+				
+				multipliers[towerDifficulty - 1].map((div, key) => (
+					<TowerLevel multiplier={div.multiplier} key={key} difficulty={towerDifficulty} clicked={reveal}/>
 				))
 			}
 			</div>

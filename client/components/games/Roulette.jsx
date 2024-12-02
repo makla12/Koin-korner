@@ -83,27 +83,40 @@ function Roulette() {
 	function changeInput(action) {
 		if (inputRef.current) {
 			switch (action) {
+				case "0":
+					inputRef.current.value = 0;
+					betRound();
+					break;
 				case "+10":
-					console.log(Number(inputRef.current.value))
 					inputRef.current.value = Number(inputRef.current.value) + 10;
+					betRound();
 					break;
 				case "+100":
 					inputRef.current.value = Number(inputRef.current.value) + 100;
+					betRound();
 					break;
 				case "+1000":
 					inputRef.current.value = Number(inputRef.current.value) + 1000;
+					betRound();
 					break;
 				case "1/2":
 					inputRef.current.value = Number(inputRef.current.value) / 2;
+					betRound();
 					break;
 				case "x2":
 					inputRef.current.value = Number(inputRef.current.value) * 2;
+					betRound();
 					break;
 				case "MAX":
 					inputRef.current.value = balance;
+					betRound();
 					break;
 			}
 		}
+	}
+
+	function betRound() {
+		inputRef.current.value = Math.floor(Number(inputRef.current.value));
 	}
 
   	return (
@@ -327,15 +340,16 @@ function Roulette() {
 			/>
 			{
 				[
+					{text: "0"},
 					{text: "+10"},
 					{text: "+100"},
 					{text: "+1000"},
 					{text: "1/2"},
 					{text: "x2"},
-					{text: "MAX"}
+					{text: "MAX"},
 				].map((div, index) => (
 					<div key={index} className={`
-						w-[7%] h-full select-none flex justify-center items-center text-[1vw] ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#525864]"}
+						w-[6%] h-full select-none flex justify-center items-center text-[1vw] ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#525864]"}
 						m-[0.5%] p-[0.6%] rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#454952]"}`} 
 						onClick={()=>{ changeInput(div.text) }}
 					>

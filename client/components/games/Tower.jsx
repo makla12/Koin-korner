@@ -1,4 +1,4 @@
-import {useState, useRef} from "react";
+import {useState, useRef, useEffect} from "react";
 import { TowerLevel } from "../elements/TowerLevel";
 
 function Tower() {
@@ -8,27 +8,39 @@ function Tower() {
 	function changeInput(action) {
 		if (inputRef.current) {
 			switch (action) {
+				case "0":
+					inputRef.current.value = 0;
+					betRound();
+					break;
 				case "+10":
-					console.log(Number(inputRef.current.value))
 					inputRef.current.value = Number(inputRef.current.value) + 10;
+					betRound();
 					break;
 				case "+100":
 					inputRef.current.value = Number(inputRef.current.value) + 100;
+					betRound();
 					break;
 				case "+1000":
 					inputRef.current.value = Number(inputRef.current.value) + 1000;
+					betRound();
 					break;
 				case "1/2":
 					inputRef.current.value = Number(inputRef.current.value) / 2;
+					betRound();
 					break;
 				case "x2":
 					inputRef.current.value = Number(inputRef.current.value) * 2;
+					betRound();
 					break;
 				case "MAX":
 					inputRef.current.value = balance;
 					break;
 			}
 		}
+	}
+
+	function betRound() {
+		inputRef.current.value = Math.floor(Number(inputRef.current.value));
 	}
 
   	return (
@@ -84,6 +96,7 @@ function Tower() {
 					<div className="flex flex-wrap justify-center items-center">
 						{
 							[
+								{text: "0"},
 								{text: "+10"},
 								{text: "+100"},
 								{text: "+1000"},
@@ -92,7 +105,7 @@ function Tower() {
 								{text: "MAX"}
 							].map((div, index) => (
 								<div key={index} className={`
-								w-1/4 select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#27262a]"}
+								w-${div.text == "MAX" ? "3/4" : "1/4"} select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#27262a]"}
 								m-1 p-2 rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#383a3f]"}
 								`} onClick={()=>{ changeInput(div.text) }}>
 									{div.text}
@@ -119,7 +132,7 @@ function Tower() {
 					{multiplier: "x2.03"},
 					{multiplier: "x1.425"}
 				].map((div, key) => (
-					<TowerLevel multiplier={div.multiplier} key={key}/>
+					<TowerLevel multiplier={div.multiplier} key={key} difficulty={towerDifficulty}/>
 				))
 			}
 			</div>

@@ -7,18 +7,25 @@ function Crash() {
 	const [xAxis, setXAxis] = useState([1]);
 	const [multiplier, setMultiplier] = useState([1]);
 	const [change, setChange] = useState(false);
+	const [animPlay, setAnimPlay] = useState(false);
+	const [waitingTime, setWaitingTime] = useState(20);
 	
 	function animation() {
-		setTimeout(() => {
-		  let newXAxis = Array.from(xAxis);
-		  let newMult = Array.from(multiplier);
-		  newXAxis.push(newXAxis[newXAxis.length - 1] + 0.01);
-		  newMult.push(Math.pow(Math.E, newXAxis[newXAxis.length - 1] * 0.0693));
+		setTimeout(timeout, 10);
+	}
+
+	function timeout() {
+		if(!animPlay) {
+			return 0;
+		}
+		let newXAxis = Array.from(xAxis);
+		let newMult = Array.from(multiplier);
+		newXAxis.push(newXAxis[newXAxis.length - 1] + 0.01);
+		newMult.push(Math.pow(Math.E, newXAxis[newXAxis.length - 1] * 0.0693));
 		  
-		  setXAxis(newXAxis);
-		  setMultiplier(newMult);
-		  setChange(!change);
-		}, 10);
+		setXAxis(newXAxis);
+		setMultiplier(newMult);
+		setChange(!change);
 	  }
 	
 	  useEffect(() => {
@@ -28,6 +35,9 @@ function Crash() {
 	function changeInput(action) {
 		if (input1Ref.current) {
 			switch (action) {
+				case "0":
+					input1Ref.current.value = 0;
+					break;
 				case "+10":
 					console.log(Number(input1Ref.current.value))
 					input1Ref.current.value = Number(input1Ref.current.value) + 10;
@@ -60,21 +70,54 @@ function Crash() {
 		input1Ref.current.value = Math.floor(Number(input1Ref.current.value));
 	}
 
+
+	useEffect(() => {
+		if(animPlay){
+			return;
+		}
+		setTimeout(() => {
+			if (waitingTime == 0) {
+				start();
+			}
+			setWaitingTime(waitingTime > 0 ? (waitingTime - 0.1).toFixed(1) : 0);
+		}, 100);
+	}, [waitingTime])
+
+	function start() {
+		setAnimPlay(true);
+		setChange(!change);
+	}
+
+	function crash() {
+		setAnimPlay(false);
+	}
+
   	return (
     <>
 	{/* e^{0.0693x} */}
 	<div className="w-full h-full p-2">
-		<div className="w-full h-[45%] flex items-center bg-[#525864] rounded-lg my-2">
+		<div className="w-full h-[45%] flex items-center bg-[#525864] rounded-lg my-2 relative">
+			{
+				animPlay ? 
+				<></>
+				:
+				<div className="w-[60%] h-full absolute top-0 left-0 bg-[#525864] z-10 flex justify-center items-center">
+					<p className="text-5xl select-none">{waitingTime}</p>
+				</div>
+			}
+			
 			<div className="w-[60%] h-full border-r-black border-r-2 relative">
-				<p className="z-10 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
+				<p className="z-5 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
 				text-5xl text-[#3baa60] select-none">x{(multiplier[multiplier.length - 1]).toFixed(2)}</p>
 				<ResponsiveChartContainer 
 					xAxis={[{ data: xAxis, min: 1 }]}
+					yAxis={[{min: 1}]}
 					series={[
 						{
 							type:"line",
 							data: multiplier,
 							color: "#00bf62",
+							area: true
 						},
 					]}
 
@@ -111,6 +154,7 @@ function Crash() {
 				<div className="flex justify-around">
 					{
 						[
+							{text: "0"},
 							{text: "+10"},
 							{text: "+100"},
 							{text: "+1000"},
@@ -140,7 +184,7 @@ function Crash() {
 		</div>
 
 		<div className="w-full h-[10%] flex justify-around items-center bg-[#525864] rounded-lg my-2">
-			{
+			{ 
 				[
 					{text: "20.32", color: "green"},
 					{text: "1.23", color: "red"},
@@ -186,7 +230,9 @@ function Crash() {
 			</div>
 		</div>
 	</div>
-		
+	{
+		console.log("rudy to cwel")
+	}
     </>
   	);
 }

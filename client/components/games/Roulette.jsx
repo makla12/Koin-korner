@@ -349,7 +349,7 @@ function Roulette() {
 					{text: "MAX"},
 				].map((div, index) => (
 					<div key={index} className={`
-						w-[7%] h-full select-none flex justify-center items-center text-[1vw] ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#525864]"}
+						w-[6%] h-full select-none flex justify-center items-center text-[1vw] ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#525864]"}
 						m-[0.5%] p-[0.6%] rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#454952]"}`} 
 						onClick={()=>{ changeInput(div.text) }}
 					>

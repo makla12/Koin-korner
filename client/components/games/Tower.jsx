@@ -4,6 +4,46 @@ import { TowerLevel } from "../elements/TowerLevel";
 function Tower() {
 	const inputRef = useRef(null);
 	const [towerDifficulty, setTowerDifficulty] = useState(1);
+	const [currentLevel, setCurrentLevel] = useState(0);
+	const [loseLevel, setLoseLevel] = useState([0, 4, 4, 2, 3, 1, 2, 5, 0, 3]);
+	const multipliers = [
+		[
+			{multiplier: "x34.526"},
+			{multiplier: "x24.228"},
+			{multiplier: "x17.002"},
+			{multiplier: "x11.931"},
+			{multiplier: "x8.373"},
+			{multiplier: "x5.875"},
+			{multiplier: "x4.123"},
+			{multiplier: "x2.893"},
+			{multiplier: "x2.03"},
+			{multiplier: "x1.425"}
+		],
+		[
+			{multiplier: "x613.106"},
+			{multiplier: "x322.687"},
+			{multiplier: "x169.836"},
+			{multiplier: "x89.387"},
+			{multiplier: "x47.045"},
+			{multiplier: "x24.76"},
+			{multiplier: "x13.032"},
+			{multiplier: "x6.858"},
+			{multiplier: "x3.61"},
+			{multiplier: "x1.9"}
+		],
+		[
+			{multiplier: "x35354.817"},
+			{multiplier: "x12405.199"},
+			{multiplier: "x4352.701"},
+			{multiplier: "x1527.263"},
+			{multiplier: "x535.881"},
+			{multiplier: "x188.028"},
+			{multiplier: "x65.975"},
+			{multiplier: "x23.149"},
+			{multiplier: "x8.122"},
+			{multiplier: "x2.85"}
+		],
+];
 
 	function changeInput(action) {
 		if (inputRef.current) {
@@ -41,6 +81,10 @@ function Tower() {
 
 	function betRound() {
 		inputRef.current.value = Math.floor(Number(inputRef.current.value));
+	}
+
+	function reveal(e) {
+
 	}
 
   	return (
@@ -120,19 +164,9 @@ function Tower() {
 		<div className="w-[70%] h-[95%] m-3 py-2 bg-[#525864] rounded-lg flex flex-col justify-between">
 			<div className="w-full h-4/5 px-2">
 			{
-				[
-					{multiplier: "x34.526"},
-					{multiplier: "x24.228"},
-					{multiplier: "x17.002"},
-					{multiplier: "x11.931"},
-					{multiplier: "x8.373"},
-					{multiplier: "x5.875"},
-					{multiplier: "x4.123"},
-					{multiplier: "x2.893"},
-					{multiplier: "x2.03"},
-					{multiplier: "x1.425"}
-				].map((div, key) => (
-					<TowerLevel multiplier={div.multiplier} key={key} difficulty={towerDifficulty}/>
+				
+				multipliers[towerDifficulty - 1].map((div, key) => (
+					<TowerLevel multiplier={div.multiplier} key={key} difficulty={towerDifficulty} clicked={reveal}/>
 				))
 			}
 			</div>

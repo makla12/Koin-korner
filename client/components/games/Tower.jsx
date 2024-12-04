@@ -1,11 +1,14 @@
-import {useState, useRef, useEffect} from "react";
+import {useState, useRef, useEffect, cloneElement} from "react";
 import { TowerLevel } from "../elements/TowerLevel";
+import Image from 'next/image';
+import koinPic from '@/public/koin.svg';
+import bombPic from '@/public/red-bomb.svg';
 
 function Tower() {
 	const inputRef = useRef(null);
 	const [towerDifficulty, setTowerDifficulty] = useState(1);
 	const [currentLevel, setCurrentLevel] = useState(0);
-	const [loseLevel, setLoseLevel] = useState([0, 4, 4, 2, 3, 1, 2, 5, 0, 3]);
+	const [serverSeed, setServerSeed] = useState([0, 4, 4, 2, 3, 1, 2, 5, 0, 3]);
 	const multipliers = [
 		[
 			{multiplier: "x34.526"},
@@ -84,7 +87,53 @@ function Tower() {
 	}
 
 	function reveal(e) {
+		const level = Number((e.target.parentElement.parentElement.id).substring(5)) - 1;
+		const chosenOption = Number(e.target.id.substring(10));
+		if (level == currentLevel) {
+			switch (towerDifficulty) {
+				case 1:
+					if (serverSeed[currentLevel] < 4) {
+						// win
+						const img = cloneElement(
+							<Image src={koinPic} alt="koin" className="h-full"/>
+						);
+						console.log(img);
+						// e.target.appendChild(img);
+						setCurrentLevel(currentLevel + 1);
+					} else {
+						// lose
+						e.target.innerHTML = "lose";
+						setCurrentLevel(-1);
+					}
+					break;
+				case 2:
+					if (serverSeed[currentLevel] > 2) {
+						// win
+						e.target.innerHTML = "win";
+						setCurrentLevel(currentLevel + 1);
+					} else {
+						// lose
+						e.target.innerHTML = "lose";
+						setCurrentLevel(-1);
+					}
+					break;
+				case 3:
+					if (serverSeed[currentLevel] > 3) {
+						// win
+						e.target.innerHTML = "win";
+						setCurrentLevel(currentLevel + 1);
+					} else {
+						// lose
+						e.target.innerHTML = "lose";
+						setCurrentLevel(-1);
+					}
+					break;
+			}
 
+			if (currentLevel == -1) {
+				// game over
+			}
+		}
 	}
 
   	return (
@@ -164,15 +213,14 @@ function Tower() {
 		<div className="w-[70%] h-[95%] m-3 py-2 bg-[#525864] rounded-lg flex flex-col justify-between">
 			<div className="w-full h-4/5 px-2">
 			{
-				
 				multipliers[towerDifficulty - 1].map((div, key) => (
-					<TowerLevel multiplier={div.multiplier} key={key} difficulty={towerDifficulty} clicked={reveal}/>
+					<TowerLevel multiplier={div.multiplier} key={key} difficulty={towerDifficulty} clicked={reveal} id={key}/>
 				))
 			}
 			</div>
 
 			<div className="w-full p-1 m-1 flex justify-center items-center">
-				<button className="w-2/3 h-full bg-[#e9b308] text-lg p-4 rounded-full hover:bg-[#eeba4a]">
+				<button className="w-2/3 h-full bg-[#e9b308] text-lg p-4 rounded-full hover:bg-[#eeba4a] select-none">
 					WYPŁAĆ
 				</button>
 				{/* <button className="w-2/3 h-full bg-[#fd0100] text-lg p-4 rounded-full hover:bg-[#f34545]">

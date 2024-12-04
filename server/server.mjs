@@ -6,7 +6,7 @@ import { createServer } from "http";
 import dotenv from 'dotenv';
 dotenv.config();
 
-const dev = false;
+const dev = true;
 //Ustawienia sesji i CORS
 const sessionMiddleware = session({
     secret:process.env.SESSION_SECRET,

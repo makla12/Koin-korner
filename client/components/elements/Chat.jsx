@@ -5,7 +5,7 @@ import axios from "axios";
 
 function Chat() {
     const [messages,setMessages] = useState(null);
-    const [socket, setSocket] = useState(null);
+    const [chatSocket, setChatSocket] = useState(null);
 
     //Get chat data and connect socket
     useEffect(()=>{
@@ -14,22 +14,22 @@ function Chat() {
             setMessages(data.data.messages);
         }
         fechData();
-        setSocket(io(window.location.hostname + ":8080/chatNS", {withCredentials: true}));
+        setChatSocket(io(window.location.hostname + ":8080/chatNS", {withCredentials: true}));
     },[]);
 
     //Declare socket events
     useEffect(()=>{
-        if(socket == undefined){
+        if(chatSocket == undefined){
             return ;
         }
-        socket.on("message", (messageInfo) => {
+        chatSocket.on("message", (messageInfo) => {
             let newMessages = Array.from(messages);
             newMessages.push(messageInfo);
             setMessages(newMessages);
         });
 
         return ()=>{
-            socket.off("message");
+            chatSocket.off("message");
         }
     },[messages])
 
@@ -51,7 +51,7 @@ function Chat() {
             </div>
             
             {/* Sending message input */}
-            {socket == null ? "Loading..." :
+            {chatSocket == null ? "Loading..." :
             <form className="flex justify-center items-center w-full p-1"
                 onSubmit={(e)=>{
                     e.preventDefault();
@@ -59,7 +59,7 @@ function Chat() {
                     if(messageInput.value == "" || messageInput.value == undefined){ //Check if input is valid
                         return ;
                     }
-                    socket.emit("sendMessage", messageInput.value); //Send message
+                    chatSocket.emit("sendMessage", messageInput.value); //Send message
                     messageInput.value = "";
                 }}
             >

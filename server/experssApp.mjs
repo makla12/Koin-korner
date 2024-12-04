@@ -6,37 +6,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
-    const app = express();
-    app.use(express.json());
-    app.use(sessionMiddleware);
-    app.use(cors(corsOptions));
-
-
-    //Zdefiniowanie routów związanych autoryzacji
-    app.get("/auth/checkLogIn", (req, res) => { //Odsyła czy użytkownik jest zalogowany oraz nazwę użytkownika
-        res.json({
-            isLoggedIn:(req.session.isLoggedIn == undefined ? false : req.session.isLoggedIn),
-            username:req.session.username
-        });
-    });
-
-    app.post("/auth/logIn",async (req, res)=>{ //Próba zalogowania użytkownika
-        if(req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
-            return 0;
-        }
-        const id = await logIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
-        req.session.isLoggedIn = id != 0;
-        req.session.userId = id;
-        req.session.username = req.body.username;
-        res.json({suc:id != null}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
-    });
-
-    app.post("/auth/logOut", (req, res)=>{ //Wylogowanie użytkownika
-        req.session.isLoggedIn = false;
-        res.json({suc:true});
-    });
-
-    //Rejestracja użytkownika
     const transporter = nodemailer.createTransport({
         service: "Gmail",
         host: "smtp.gmail.com",
@@ -77,6 +46,40 @@ const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
         return code;
     };
 
+    const app = express();
+    app.use(express.json());
+    app.use(sessionMiddleware);
+    app.use(cors(corsOptions));
+
+
+    //Zdefiniowanie routów związanych autoryzacji
+    app.get("/auth/checkLogIn", (req, res) => { //Odsyła czy użytkownik jest zalogowany oraz nazwę użytkownika
+        res.json({
+            isLoggedIn:(req.session.isLoggedIn == undefined ? false : req.session.isLoggedIn),
+            username:req.session.username
+        });
+    });
+
+    app.post("/auth/logIn",async (req, res)=>{ //Próba zalogowania użytkownika
+        if(req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
+            return 0;
+        }
+        const id = await logIn(req.body.username, req.body.password); //Weryfikacja danych podanych przez użytkownika
+        req.session.isLoggedIn = id != null;
+        req.session.userId = id;
+        req.session.username = req.body.username;
+        res.json({suc:id != null}); //Odpowiedz serwera do użytkownika o tym czy logowanie się powiodło
+    });
+
+    app.post("/auth/logOut", (req, res)=>{ //Wylogowanie użytkownika
+        req.session.isLoggedIn = false;
+        req.session.userId = null;
+        req.session.username = null;
+        res.json({suc:true});
+    });
+
+    //Rejestracja użytkownika
+
     app.post("/auth/register", async (req, res) => {
         if(req.body.email == undefined || req.body.username == undefined || req.body.password == undefined){ //Sprawdzienie czy request użytkownika posiada dane
             res.json({suc:false})
@@ -103,7 +106,7 @@ const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
             res.json({suc:false});
             return 0;
         }
-        const registerId = Number(await register(req.session.regEmail, req.session.regUsername, req.session.regPassword));
+        const registerId = await register(req.session.regEmail, req.session.regUsername, req.session.regPassword);
         console.log(registerId);
         req.session.isLoggedIn = registerId != 0;
         req.session.userId = registerId;

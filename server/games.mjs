@@ -9,7 +9,7 @@ function generateHash(seed) {
 }
 
 //Roulette
-async function rollFromSeed(serverSeed, publicSeed, round){
+function rollFromSeed(serverSeed, publicSeed, round){
 	let hash = crypto.createHash("sha256").update(serverSeed).update(publicSeed).update(round).digest("hex");
 	let roll = Number("0x" + hash.substring(0,8)) % 15;
 	return roll;
@@ -26,7 +26,7 @@ function divisible(hash, mod) {
 	return val === 0;
 }
 
-function crashPointFromHash(serverSeed) {
+function crashPointFromHash(serverSeed, publicSeed, round) {
 	const hash = crypto
 		.createHmac("sha256", serverSeed)
 		.update(salt)

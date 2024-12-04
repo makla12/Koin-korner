@@ -46,7 +46,7 @@ const register = async (email, username, password) => {
 		conn = await pool.getConnection();
 		try{
 			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 5, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
-			return res.insertId;
+			return Number(res.insertId);
 		}
 		catch (e){
 			return null;
@@ -89,7 +89,7 @@ const getServerSeed = async () => {
         const month = datenow.getMonth() + 1;
         const day = datenow.getDate();
         const dateSting = `${year}-${month < 10 ? "0" : ""}${month}-${day}`;
-		let seed = await conn.query("SELECT seed FROM server_seed WHERE date = ?",[dateSting]);
+		let seed = await conn.query("SELECT id, seed FROM server_seed WHERE date = ?",[dateSting]);
 		if(seed.length == 0){
 			let chars = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
 			let seedGen = "";
@@ -97,10 +97,10 @@ const getServerSeed = async () => {
 				seedGen += chars[Math.floor(Math.random() * 15)];
 			}
 			let seedHash = crypto.createHash("sha256").update(seedGen).digest("hex");
-			await conn.query("INSERT INTO server_seed VALUE(null,?,?,?)",[seedGen, seedHash, dateSting]);
-			return seedGen;
+			const res = await conn.query("INSERT INTO server_seed VALUE(null,?,?,?)",[seedGen, seedHash, dateSting]);
+			return [Number(res.insertId), seedGen];
 		}
-		return seed[0].seed;
+		return [seed[0].id, seed[0].seed];
 	}
 	finally{
 		if(conn) conn.release();
@@ -116,19 +116,44 @@ const getPublicSeed = async (gameType) => {
         const month = datenow.getMonth() + 1;
         const day = datenow.getDate();
         const dateSting = `${year}-${month < 10 ? "0" : ""}${month}-${day}`;
-		let seed = await conn.query("SELECT seed FROM public_seed WHERE date = ?",[dateSting]);
+		const seed = await conn.query("SELECT id, seed FROM public_seed WHERE date = ? AND game_type = ?",[dateSting, gameType]);
 		if(seed.length == 0){
 			let seedGen = "";
 			for(let i = 0; i < 16; i++){
 				seedGen += Math.floor(Math.random() * 9);
 			}
-			await conn.query("INSERT INTO public_seed VALUE(null,?,?,?)",[seedGen, dateSting, gameType]);
-			return seedGen;
+			const res = await conn.query("INSERT INTO public_seed VALUE(null,?,?,?)",[seedGen, dateSting, gameType]);
+			return [Number(res.insertId), seedGen];
 		}
-		return seed[0].seed;
+		return [seed[0].id, seed[0].seed];
 	}
 	finally{
 		if(conn) conn.release();
 	}
 }
-export { logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, checkUsernameAndEmail };
+
+const getGameRound = async (gameType) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		const round = await conn.query("SELECT MAX(round) as round FROM games INNER JOIN public_seed ON public_seed_id = public_seed.id WHERE game_type = ?;",[gameType]);
+		if(round[0].round == null) return 0;
+		
+		return round[0].round + 1;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+
+const saveRouletteRoll = async (round, score, serverSeedId, publicSeedId) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		await conn.query("INSERT INTO games VALUES(null, ?, ?, ?, ?)", [round, score, serverSeedId, publicSeedId]);
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll };

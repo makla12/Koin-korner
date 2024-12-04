@@ -1,14 +1,57 @@
 import Image from "next/image";
-import {useEffect, useRef} from "react";
+import { io } from "socket.io-client";
+import {useEffect, useRef, useState} from "react";
 import blankProfile from "@/public/blank_profile.png";
 
 function Roulette() {
+	const [rouletteSocket, setRouletteSocket] = useState(null);
 	const rouletteRef = useRef(null);
 	const inputRef = useRef(null);
-	const chosenBet = null;
+	const [timeLeft, setTimeLeft] = useState(null);
+	const [playTimer, setPlayTimer] = useState(false);
+	
 	useEffect(()=>{
-		setTimeout(() => {bet(13)}, 500);
+		setRouletteSocket(io(window.location.hostname + ":8080/rouletteNS", {withCredentials: true}));
 	},[]);
+
+	useEffect(()=>{
+		if(rouletteSocket == null) return;
+
+		rouletteSocket.on("time",(time) => {
+			const timerTime = 200 + 30 + 10 - (Date.now() - time) / 100;
+			setPlayTimer(true);
+			setTimeLeft(timerTime);
+		});
+
+		rouletteSocket.on("roll", (score) => {
+			roll(score);
+		});
+		
+	},[rouletteSocket]);
+
+    useEffect(()=>{
+        setTimeout(()=>{
+            if(timeLeft <= 0) return; 
+            setTimeLeft(timeLeft - 1);
+        },100)
+
+    },[timeLeft]);
+	
+	const roll = (x) => {
+		setPlayTimer(false);
+		bet(x);
+		setTimeLeft(200 + 30 + 10);
+		setTimeout(() => {
+			reset();
+			setPlayTimer(true);	
+		}, 3000 + 1000);
+	}
+
+	const reset = () => {
+		// setRouletteAnimTime(0);
+		rouletteRef.current.style.transform = `translateX(0)`;
+	}
+
 	function bet(number) {
 		if (rouletteRef.current) {
 			let steps = 5 * 15 * 9 + Math.random() * 4 - 2 - 1.3;
@@ -108,12 +151,18 @@ function Roulette() {
 
   	return (
     <>
-
-	<div id="container" className="">
+	<div id="container" className="w-full relative">
 
 {/* Roulette */}
+        {(playTimer ? 
+            <div className="w-full bg-[#27272acf] aspect-[125/12] absolute z-10 flex justify-center items-center text-3xl">{(timeLeft/10).toFixed(1)}s </div>
+        : 
+            null
+        )
+        }   
+
 		<div className="h-[2vh] w-[0.2vw] bg-white m-auto flex justify-center"></div>
-		<div  id="roulette" ref={rouletteRef} className="h-[20%] flex justify-start items-center rounded-lg w-full relative transition-transform duration-[5s]">
+		<div  id="roulette" ref={rouletteRef} className={`flex justify-start items-center rounded-lg w-full relative transition-transform duration-[3s]`}>
 			{
 				[
 					{color: "yellow", number: "K"},

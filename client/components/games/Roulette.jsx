@@ -1,14 +1,64 @@
 import Image from "next/image";
-import {useEffect, useRef} from "react";
+import { io } from "socket.io-client";
+import {useEffect, useRef, useState} from "react";
 import blankProfile from "@/public/blank_profile.png";
+import { RouletteBetOption } from "../elements/RouletteBetOption";
 
 function Roulette() {
+	const [rouletteSocket, setRouletteSocket] = useState(null);
 	const rouletteRef = useRef(null);
 	const inputRef = useRef(null);
-	const chosenBet = null;
+	const timeLeft = useRef(0);
+	const timerRef = useRef(null);
+	const [playTimer, setPlayTimer] = useState(false);
+	
 	useEffect(()=>{
-		setTimeout(() => {bet(13)}, 500);
+		setRouletteSocket(io(window.location.hostname + ":8080/rouletteNS", {withCredentials: true}));
 	},[]);
+
+	useEffect(()=>{
+		if(rouletteSocket == null) return;
+
+		rouletteSocket.on("time",(time) => {
+			const timerTime = 200 + 30 + 10 - (Date.now() - time) / 100;
+			setPlayTimer(true);
+			timeLeft.current = timerTime;
+		});
+
+		rouletteSocket.on("roll", (score) => {
+			roll(score);
+		});
+		
+	},[rouletteSocket]);
+
+    useEffect(()=>{
+        const timeInterval = setInterval(()=>{
+            if(timeLeft <= 0) return; 
+
+			timeLeft.current = timeLeft.current - 1;
+			if(timerRef) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
+        },100);
+
+		return () => {
+			clearInterval(timeInterval);
+		}
+    },[]);
+	
+	const roll = (x) => {
+		setPlayTimer(false);
+		bet(x);
+		timeLeft.current = 200 + 30 + 10;
+		setTimeout(() => {
+			reset();
+			setPlayTimer(true);	
+		}, 3000 + 1000);
+	}
+
+	const reset = () => {
+		// setRouletteAnimTime(0);
+		rouletteRef.current.style.transform = `translateX(0)`;
+	}
+
 	function bet(number) {
 		if (rouletteRef.current) {
 			let steps = 5 * 15 * 9 + Math.random() * 4 - 2 - 1.3;
@@ -121,12 +171,13 @@ function Roulette() {
 
   	return (
     <>
-
-	<div id="container" className="">
+	<div id="container" className="w-full relative">
 
 {/* Roulette */}
+        <div ref={timerRef} className={`w-full bg-[#27272acf] aspect-[125/12] absolute z-10 flex justify-center items-center text-3xl ${(!playTimer ? "hidden" : "")}`}></div>
+
 		<div className="h-[2vh] w-[0.2vw] bg-white m-auto flex justify-center"></div>
-		<div  id="roulette" ref={rouletteRef} className="h-[20%] flex justify-start items-center rounded-lg w-full relative transition-transform duration-[5s]">
+		<div  id="roulette" ref={rouletteRef} className={`flex justify-start items-center rounded-lg w-full relative transition-transform duration-[3s]`}>
 			{
 				[
 					{color: "yellow", number: "K"},
@@ -365,25 +416,21 @@ function Roulette() {
 
 {/* Reds */}
 		<div className="w-[30%] flex flex-col"> {/* Bets */}
-			<div className="w-full h-1/5 p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
-				<div className="w-1/3 h-full px-[1%] py-[2%] bg-red-600 flex justify-center items-center text-[0.8vw] rounded-xl select-none">CZERWONE</div>
-				<div className="w-2/3 h-full flex justify-around items-center">
+			<div className="w-full h-1/5 p-[1%] flex justify-evenly items-center bg-[#525864] rounded-xl">
 				{
-						[
-							{text: 1},
-							{text: 2},
-							{text: 3},
-							{text: 4},
-							{text: 5},
-							{text: 6},
-							{text: 7},
-						].map((div, index) => (
-							<div key={index} className="w-[12%] h-full px-[1%] bg-red-600 flex justify-center items-center text-[1vw] rounded-xl select-none">
-								{div.text}
-							</div>
-						))
+					[
+						{text:"CZERWONE"},
+						{text: 1},
+						{text: 2},
+						{text: 3},
+						{text: 4},
+						{text: 5},
+						{text: 6},
+						{text: 7},
+					].map((div, index) => (
+						<RouletteBetOption key={index} text={div.text} className={"bg-red-600 border-red-800 hover:bg-red-700"}/>
+					))
 				}
-				</div>
 			</div>
 
 {/* Yout bet */}
@@ -416,9 +463,9 @@ function Roulette() {
 {/* Yellow, odd and even */}
 		<div className="w-[30%] flex flex-col"> {/* Bets */}
 			<div className="w-full h-1/5 flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
-				<div className="w-[30%] h-full m-[1%] px-[1%] py-[2%] bg-amber-500 flex justify-center items-center text-[0.9vw] rounded-xl select-none">PARZYSTE</div>
-				<div className="w-[40%] h-full m-[1%] px-[1%] py-[2%] bg-amber-500 flex justify-center items-center text-[0.9vw] text-black font-bold rounded-xl select-none">K</div>
-				<div className="w-[30%] h-full m-[1%] px-[1%] py-[2%] bg-amber-500 flex justify-center items-center text-[0.9vw] rounded-xl select-none">NIEPARZYSTE</div>
+				<RouletteBetOption text={"PARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700"}/>
+				<RouletteBetOption text={"K"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[13%]"}/>
+				<RouletteBetOption text={"NIEPARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700"}/>
 			</div>
 				
 {/* Yout bet */}
@@ -451,10 +498,9 @@ function Roulette() {
 {/* Black */}
 		<div className="w-[30%] flex flex-col"> {/* Bets */}
 			<div className="w-full h-1/5 p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
-				<div className="w-1/3 h-full px-[1%] py-[2%] bg-[#18181b] flex justify-center items-center text-[0.8vw] rounded-xl select-none">CZARNE</div>
-				<div className="w-2/3 h-full flex justify-around items-center">
 				{
 						[
+							{text: "CZARNE"},
 							{text: 8},
 							{text: 9},
 							{text: 10},
@@ -463,12 +509,9 @@ function Roulette() {
 							{text: 13},
 							{text: 14},
 						].map((div, index) => (
-							<div key={index} className="w-[12%] h-full px-[1%] bg-[#18181b] flex justify-center items-center text-[1vw] rounded-xl select-none">
-								{div.text}
-							</div>
+							<RouletteBetOption key={index} text={div.text} className={"bg-gray-900 border-gray-950 hover:bg-gray-800"}/>
 						))
 				}
-				</div>
 			</div>
 
 {/* Yout bet */}

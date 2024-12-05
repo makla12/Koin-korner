@@ -1,14 +1,11 @@
 import {useState, useRef, useEffect, cloneElement} from "react";
 import { TowerLevel } from "../elements/TowerLevel";
-import Image from 'next/image';
-import koinPic from '@/public/koin.svg';
-import bombPic from '@/public/red-bomb.svg';
 
 function Tower() {
 	const inputRef = useRef(null);
 	const [towerDifficulty, setTowerDifficulty] = useState(1);
 	const [currentLevel, setCurrentLevel] = useState(0);
-	const [serverSeed, setServerSeed] = useState([0, 4, 4, 2, 3, 1, 2, 5, 0, 3]);
+	const [winTable, setWinTable] = useState([0, 4, 4, 2, 3, 1, 2, 5, 0, 3]);
 	const multipliers = [
 		[
 			{multiplier: "x34.526"},
@@ -92,13 +89,8 @@ function Tower() {
 		if (level == currentLevel) {
 			switch (towerDifficulty) {
 				case 1:
-					if (serverSeed[currentLevel] < 4) {
+					if (winTable[currentLevel] < 4) {
 						// win
-						const img = cloneElement(
-							<Image src={koinPic} alt="koin" className="h-full"/>
-						);
-						console.log(img);
-						// e.target.appendChild(img);
 						setCurrentLevel(currentLevel + 1);
 					} else {
 						// lose
@@ -107,7 +99,7 @@ function Tower() {
 					}
 					break;
 				case 2:
-					if (serverSeed[currentLevel] > 2) {
+					if (winTable[currentLevel] > 2) {
 						// win
 						e.target.innerHTML = "win";
 						setCurrentLevel(currentLevel + 1);
@@ -118,7 +110,7 @@ function Tower() {
 					}
 					break;
 				case 3:
-					if (serverSeed[currentLevel] > 3) {
+					if (winTable[currentLevel] > 3) {
 						// win
 						e.target.innerHTML = "win";
 						setCurrentLevel(currentLevel + 1);

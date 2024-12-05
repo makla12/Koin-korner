@@ -1,6 +1,10 @@
-function TowerLevel({ multiplier, difficulty, clicked, id }) {
+import Image from 'next/image';
+import koinPic from '@/public/koin.svg';
+import bombPic from '@/public/red-bomb.svg';
+
+function TowerLevel({ multiplier, difficulty, clicked, id, bombPlace, currentLevel }) {
     return (
-    <div id={`level${Math.abs(id - 10)}`} className="w-full h-[9.5%] my-1 flex justify-between items-center select-none">
+    <div id={`level${10 - id}`} className="w-full h-[9.5%] my-1 flex justify-between items-center select-none">
 		<p className="w-1/12 font-bold text-lg text-white">{multiplier}</p>
 			
 		<div className="w-full h-full flex justify-center items-center">

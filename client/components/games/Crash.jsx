@@ -39,7 +39,7 @@ function Crash() {
 					input1Ref.current.value = 0;
 					break;
 				case "+10":
-					console.log(Number(input1Ref.current.value))
+					console.log(Number(input1Ref.current.value));
 					input1Ref.current.value = Number(input1Ref.current.value) + 10;
 					betRound();
 					break;
@@ -230,9 +230,6 @@ function Crash() {
 			</div>
 		</div>
 	</div>
-	{
-		console.log("rudy to cwel")
-	}
     </>
   	);
 }

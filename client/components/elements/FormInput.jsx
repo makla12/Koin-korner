@@ -8,6 +8,7 @@ function FormInput({ formLabel, formControl, type, name }) {
             onChange={(e)=>{
                 formControl(e.target.value);
             }}
+            minLength={`${type == "password" ? 6 : 1}`}
         />
     </>
     );

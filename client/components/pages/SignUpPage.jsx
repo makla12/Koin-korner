@@ -55,7 +55,7 @@ function SignUpPage() {
 
                         <FormInput name={"username"} type={"text"} formLabel={"Nazwa użytkownika:"} formControl={setUsername} />
                         <FormInput name={"email"} type={"email"} formLabel={"Email:"} formControl={setEmail} />
-                        <FormInput name={"password"} type={"password"} formLabel={"Hasło:"} formControl={setPassword} />
+                        <FormInput name={"password"} type={"password"} formLabel={"Hasło:"} formControl={setPassword}/>
                         <FormInput name={"passwordConf"} type={"password"} formLabel={"Powtwierdź hasło:"} formControl={setConfirmPassword} />
 
                         <div className="my-2 flex items-center justify-center">

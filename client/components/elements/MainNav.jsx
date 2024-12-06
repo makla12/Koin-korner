@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import profilePic from '@/public/profile_pic.svg';
 import koinPic from '@/public/koin.svg';
 import darkTheme from '@/public/dark_theme.svg';
@@ -77,7 +78,7 @@ function MainNav({ isLoggedIn, username }) {
                             text-xl text-[#181818] dark:text-[#e6e6e6] text-center hover:text-[#505050] dark:hover:text-[#aaaaaa] hover:translate-y-1 hover:cursor-pointer
                             flex justify-center items-center h-full px-2.5 py-0.5 transition-all ease-in-out"
                         >
-                            <a href={div.href} className="tracking-widest no-underline">{div.name}</a>
+                            <Link href={div.href} className="tracking-widest no-underline">{div.name}</Link>
                         </div>
                     ))
                 }

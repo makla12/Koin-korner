@@ -25,7 +25,7 @@ function Roulette() {
 
             if(timeLeft <= 0) return; 
 
-			if(timerRef) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
+			if(timerRef.current) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
         },100);
 
 		return () => {
@@ -59,113 +59,113 @@ function Roulette() {
 	}
 
 	const reset = () => {
-		if(!rouletteRef) return;
+		if(!rouletteRef.current) return;
 		rouletteRef.current.style.transform = `translateX(0)`;
 	}
 
 	function bet(number) {
-		if (rouletteRef.current) {
-			let steps = 5 * 15 * 9 + Math.random() * 4 - 2 - 1.3;
-			switch(number){
-				case 1:
-					steps += 5 * -6;
-					break;
+		if (!rouletteRef.current) return;
 
-				case 2:
-					steps += 5 * -4;
-					break;
+		let steps = 5 * 15 * 9 + Math.random() * 4 - 2 - 1.3;
+		switch(number){
+			case 1:
+				steps += 5 * -6;
+				break;
 
-				case 3:
-					steps += 5 * -2;
-					break;
+			case 2:
+				steps += 5 * -4;
+				break;
 
-				case 4:
-					steps += 5 * 0;
-					break;
+			case 3:
+				steps += 5 * -2;
+				break;
 
-				case 5:
-					steps += 5 * 2;
-					break;
+			case 4:
+				steps += 5 * 0;
+				break;
 
-				case 6:
-					steps += 5 * 4;
-					break;
+			case 5:
+				steps += 5 * 2;
+				break;
 
-				case 7:
-					steps += 5 * 6;
-					break;
+			case 6:
+				steps += 5 * 4;
+				break;
 
-				case 8:
-					steps += 5 * -5;
-					break;
+			case 7:
+				steps += 5 * 6;
+				break;
 
-				case 9:
-					steps += 5 * -3;
-					break;
+			case 8:
+				steps += 5 * -5;
+				break;
 
-				case 10:
-					steps += 5 * -1;
-					break;
+			case 9:
+				steps += 5 * -3;
+				break;
 
-				case 11:
-					steps += 5 * 1;
-					break;
+			case 10:
+				steps += 5 * -1;
+				break;
 
-				case 12:
-					steps += 5 * 3;
-					break;
+			case 11:
+				steps += 5 * 1;
+				break;
 
-				case 13:
-					steps += 5 * 5;
-					break;
+			case 12:
+				steps += 5 * 3;
+				break;
 
-				case 14:
-					steps += 5 * 7;
-					break;
+			case 13:
+				steps += 5 * 5;
+				break;
 
-				case 0:
-					steps += 5 * -7;
-					break;
+			case 14:
+				steps += 5 * 7;
+				break;
 
-				default:
-					steps = 0;
-			}
-			rouletteRef.current.style.transform = `translateX(-${steps}vw)`;
+			case 0:
+				steps += 5 * -7;
+				break;
+
+			default:
+				steps = 0;
 		}
+		rouletteRef.current.style.transform = `translateX(-${steps}vw)`;
 	}
 
 	function changeInput(action) {
-		if (inputRef.current) {
-			switch (action) {
-				case "0":
-					inputRef.current.value = 0;
-					betRound();
-					break;
-				case "+10":
-					inputRef.current.value = Number(inputRef.current.value) + 10;
-					betRound();
-					break;
-				case "+100":
-					inputRef.current.value = Number(inputRef.current.value) + 100;
-					betRound();
-					break;
-				case "+1000":
-					inputRef.current.value = Number(inputRef.current.value) + 1000;
-					betRound();
-					break;
-				case "1/2":
-					inputRef.current.value = Number(inputRef.current.value) / 2;
-					betRound();
-					break;
-				case "x2":
-					inputRef.current.value = Number(inputRef.current.value) * 2;
-					betRound();
-					break;
-				case "MAX":
-					inputRef.current.value = balance;
-					betRound();
-					break;
-			}
+		if (!inputRef.current) return;
+
+		switch (action) {
+			case "0":
+				inputRef.current.value = 0;
+				betRound();
+				break;
+			case "+10":
+				inputRef.current.value = Number(inputRef.current.value) + 10;
+				betRound();
+				break;
+			case "+100":
+				inputRef.current.value = Number(inputRef.current.value) + 100;
+				betRound();
+				break;
+			case "+1000":
+				inputRef.current.value = Number(inputRef.current.value) + 1000;
+				betRound();
+				break;
+			case "1/2":
+				inputRef.current.value = Number(inputRef.current.value) / 2;
+				betRound();
+				break;
+			case "x2":
+				inputRef.current.value = Number(inputRef.current.value) * 2;
+				betRound();
+				break;
+			case "MAX":
+				inputRef.current.value = balance;
+				betRound();
+				break;
 		}
 	}
 

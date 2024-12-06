@@ -6,14 +6,31 @@ import { RouletteBetOption } from "../elements/RouletteBetOption";
 
 function Roulette() {
 	const [rouletteSocket, setRouletteSocket] = useState(null);
+	const [playTimer, setPlayTimer] = useState(false);
+	const [betsHistory, setBetsHistory] = useState(null);
+	const [bets, setBets] = useState([]);
+	const [selfBets, setSelfBets] = useState(null);
 	const rouletteRef = useRef(null);
 	const inputRef = useRef(null);
 	const timeLeft = useRef(0);
 	const timerRef = useRef(null);
-	const [playTimer, setPlayTimer] = useState(false);
 	
 	useEffect(()=>{
+//Fectch
 		setRouletteSocket(io(window.location.hostname + ":8080/rouletteNS", {withCredentials: true}));
+
+// Crerate interval form timer
+		const timeInterval = setInterval(()=>{
+			timeLeft.current = timeLeft.current - 1;
+
+            if(timeLeft <= 0) return; 
+
+			if(timerRef) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
+        },100);
+
+		return () => {
+			clearInterval(timeInterval);
+		}
 	},[]);
 
 	useEffect(()=>{
@@ -31,19 +48,6 @@ function Roulette() {
 		
 	},[rouletteSocket]);
 
-    useEffect(()=>{
-        const timeInterval = setInterval(()=>{
-            if(timeLeft <= 0) return; 
-
-			timeLeft.current = timeLeft.current - 1;
-			if(timerRef) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
-        },100);
-
-		return () => {
-			clearInterval(timeInterval);
-		}
-    },[]);
-	
 	const roll = (x) => {
 		setPlayTimer(false);
 		bet(x);
@@ -55,7 +59,7 @@ function Roulette() {
 	}
 
 	const reset = () => {
-		// setRouletteAnimTime(0);
+		if(!rouletteRef) return;
 		rouletteRef.current.style.transform = `translateX(0)`;
 	}
 
@@ -174,7 +178,7 @@ function Roulette() {
 	<div id="container" className="w-full relative">
 
 {/* Roulette */}
-        <div ref={timerRef} className={`w-full bg-[#27272acf] aspect-[125/12] absolute z-10 flex justify-center items-center text-3xl ${(!playTimer ? "hidden" : "")}`}></div>
+        <div ref={timerRef} className={`w-full bg-[#27272acf] aspect-[130/12] absolute z-10 flex justify-center items-center text-3xl select-none ${(!playTimer ? "hidden" : "")}`}></div>
 
 		<div className="h-[2vh] w-[0.2vw] bg-white m-auto flex justify-center"></div>
 		<div  id="roulette" ref={rouletteRef} className={`flex justify-start items-center rounded-lg w-full relative transition-transform duration-[3s]`}>
@@ -420,15 +424,15 @@ function Roulette() {
 				{
 					[
 						{text:"CZERWONE"},
-						{text: 1},
-						{text: 2},
-						{text: 3},
-						{text: 4},
-						{text: 5},
-						{text: 6},
-						{text: 7},
+						{text: "1"},
+						{text: "2"},
+						{text: "3"},
+						{text: "4"},
+						{text: "5"},
+						{text: "6"},
+						{text: "7"},
 					].map((div, index) => (
-						<RouletteBetOption key={index} text={div.text} className={"bg-red-600 border-red-800 hover:bg-red-700"}/>
+						<RouletteBetOption key={index} text={div.text} disabled={false} className={`${(false ? "bg-[#525252] opacity-50" : "bg-red-600 hover:bg-red-700")} border-red-800 px-[2%]`}/>
 					))
 				}
 			</div>
@@ -463,9 +467,9 @@ function Roulette() {
 {/* Yellow, odd and even */}
 		<div className="w-[30%] flex flex-col"> {/* Bets */}
 			<div className="w-full h-1/5 flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
-				<RouletteBetOption text={"PARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700"}/>
-				<RouletteBetOption text={"K"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[13%]"}/>
-				<RouletteBetOption text={"NIEPARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700"}/>
+				<RouletteBetOption text={"PARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
+				<RouletteBetOption text={"K"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[13%]"} />
+				<RouletteBetOption text={"NIEPARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
 			</div>
 				
 {/* Yout bet */}
@@ -501,15 +505,15 @@ function Roulette() {
 				{
 						[
 							{text: "CZARNE"},
-							{text: 8},
-							{text: 9},
-							{text: 10},
-							{text: 11},
-							{text: 12},
-							{text: 13},
-							{text: 14},
+							{text: "8"},
+							{text: "9"},
+							{text: "10"},
+							{text: "11"},
+							{text: "12"},
+							{text: "13"},
+							{text: "14"},
 						].map((div, index) => (
-							<RouletteBetOption key={index} text={div.text} className={"bg-gray-900 border-gray-950 hover:bg-gray-800"}/>
+							<RouletteBetOption key={index} text={div.text} className={"bg-gray-900 border-gray-950 hover:bg-gray-800 px-[2%]"}/>
 						))
 				}
 			</div>

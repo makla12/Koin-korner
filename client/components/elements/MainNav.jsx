@@ -59,13 +59,13 @@ function MainNav({ isLoggedIn, username }) {
             <div className="flex justify-center items-center select-none">
 
                 {/* Title */}
-                <div onClick={()=>{window.location = '/'}} id="title" className="
+                <Link href="/" id="title" className="
                     h-full flex justify-center items-center
                     px-2.5 py-0.5 tracking-[0.25rem]
                     text-amber-500 dark:text-yellow-500 cursor-pointer"
                 >
                     <h1 className="text-2xl text-center transition-all ease-in-out hover:text-yellow-400">KOIN KORNER</h1>
-                </div>
+                </Link>
                 
                 {/* Rest of links */}
                 {
@@ -165,17 +165,17 @@ function MainNav({ isLoggedIn, username }) {
                 :
 
                 <div className="flex justify-center items-center text-xl">
-                    <a href="signup" className="
+                    <Link href="signup" className="
                         text-[#181818] text-xl flex justify-center items-center 
                         bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 hover:translate-y-1 select-none
                         py-3 px-4 rounded-xl m-3 transition-all ease-in-out"
-                    >Zarejestruj się</a>
+                    >Zarejestruj się</Link>
                     
-                    <a href="login" className="
+                    <Link href="login" className="
                         text-[#181818] text-xl flex justify-center items-center 
                         bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 hover:translate-y-1 select-none
                         py-3 px-4 rounded-xl m-3 transition-all ease-in-out"
-                    >Zaloguj się</a>
+                    >Zaloguj się</Link>
                 </div>
                 }
                 

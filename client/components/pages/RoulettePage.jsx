@@ -25,7 +25,7 @@ function RoulettePage() {
 		<div className="w-full flex justify-between items-center p-[0.8%] h-[87.5vh]">
 			<Chat />
 			<GameContainer> 
-				<Roulette />
+				<Roulette username={username} isLoggedIn={isLoggedIn} />
 			</GameContainer>
 		</div>
     </>

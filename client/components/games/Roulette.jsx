@@ -1,20 +1,82 @@
 import Image from "next/image";
 import { io } from "socket.io-client";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import blankProfile from "@/public/blank_profile.png";
 import { RouletteBetOption } from "../elements/RouletteBetOption";
+import { RouletteBet } from "../elements/RouletteBet";
 
-function Roulette() {
-	const [rouletteSocket, setRouletteSocket] = useState(null);
-	const [playTimer, setPlayTimer] = useState(false);
-	const [betsHistory, setBetsHistory] = useState(null);
-	const [bets, setBets] = useState([]);
-	const [selfBets, setSelfBets] = useState(null);
+function Roulette({ isLogedIn, username }) {
 	const rouletteRef = useRef(null);
 	const inputRef = useRef(null);
 	const timeLeft = useRef(0);
 	const timerRef = useRef(null);
 	
+	const [rouletteSocket, setRouletteSocket] = useState(null);
+	const [playTimer, setPlayTimer] = useState(false);
+	const [rollHistory, setRollHistory] = useState([0,1,6,3,9,6,2]);
+	const [allBets, setAllBets] = useState([
+		{name:"rudy",bet:500,choice:"RED"},
+		{name:"rudy",bet:500,choice:"BLACK"},
+		{name:"rudy",bet:500,choice:"10"},
+		{name:"rudy",bet:500,choice:"K"},
+		{name:"dsa",bet:200,choice:"2"},
+		{name:"dasdaaa",bet:500,choice:"BLACK"},
+		{name:"dsadj",bet:100,choice:"10"},
+		{name:"makla",bet:500,choice:"RED"},
+		{name:"makla",bet:200,choice:"2"},
+		{name:"makla",bet:500,choice:"BLACK"},
+		{name:"makla",bet:100,choice:"10"},
+	]);
+
+	const betsSorted = allBets.sort((a,b) => (a.bet < b.bet ? 1 : (a.bet > b.bet ? -1 : 0)));
+
+	const bets = betsSorted.filter((item) => item.name != username);
+	const selfBets = betsSorted.filter((item) => item.name == username);
+
+	const getBetsSum = (filterType) => {
+		let filterArr = allBets.filter(filterType);
+		let sum = 0;
+		filterArr.forEach((item)=>{sum += item.bet});
+		return sum;
+	}
+
+	const filterRed = (item) => {
+		const choice = item.choice;
+		const numChoice = Number(choice);
+
+		if(!isNaN(numChoice)) return numChoice < 8;
+
+		if(choice == "RED") return true;
+
+		return false;
+	}
+
+	const filterYellow = (item) => {
+		const choice = item.choice;
+		const numChoice = Number(choice);
+
+		if(!isNaN(numChoice)) return false;
+
+		if(choice == "K" || choice == "EVEN" || choice == "ODD") return true;
+
+		return false;
+	}
+
+	const filterBlack = (item) => {
+		const choice = item.choice;
+		const numChoice = Number(choice);
+
+		if(!isNaN(numChoice)) return numChoice > 7;
+
+		if(choice == "BLACK") return true;
+
+		return false;
+	}
+
+	const sumBet = (type) => {
+		const filterArr = selfBets.filter((type == 0 ? filterRed : (type == 1 ? filterYellow : filterBlack)))
+	}
+
 	useEffect(()=>{
 //Fectch
 		setRouletteSocket(io(window.location.hostname + ":8080/rouletteNS", {withCredentials: true}));
@@ -353,7 +415,7 @@ function Roulette() {
 					<div key={index} className={`
 						w-[5vw] aspect-square
 						${div.color == "yellow" ? "bg-yellow-500" : div.color == "red" ? "bg-red-500" : "bg-black"} 
-						text-3xl text-${div.number === "K" ? "[#181818]" : "[#e6e6e6]"} font-bold
+						text-3xl text-"[#e6e6e6]" font-bold
 						flex flex-shrink-0 justify-center items-center select-none text-[2vw]`}
 					>{div.number}</div>
 				))
@@ -365,25 +427,18 @@ function Roulette() {
 {/* Roulette history */}
 	<div id="rouletteHistory" className="w-2/3 h-5% flex gap-[1%] my-[0.1%]">
 		{
-			[	
-				{color: "yellow", number: "K"},
-				{color: "red", number: "1"},
-				{color: "black", number: "8"},
-				{color: "red", number: "2"},
-				{color: "black", number: "9"},
-				{color: "red", number: "3"},
-				{color: "black", number: "10"},
-				{color: "red", number: "4"},
-				{color: "black", number: "11"},
-				{color: "red", number: "5"}
-			].map((div, index) => (
-				<div key={index} className={`
-					w-[4%] aspect-square
-					${div.color == "yellow" ? "bg-yellow-500" : div.color == "red" ? "bg-red-500" : "bg-black"} 
-					text-[1vw] ${div.number === "K" ? "text-[#181818] font-bold" : "text-[#e6e6e6]"} p-[0.1%] text-xl
-					rounded-full flex flex-shrink-0 justify-center items-center select-none`}
-				>{div.number}</div>
-			))
+			rollHistory.map((value, index) => {
+				const type = (value == 0 ? 1 : (value < 8 ? 0 : 2));
+
+				return (
+					<div key={index} className={`
+						w-[4%] aspect-square
+						${type == 1 ? "bg-yellow-500" : type == 0 ? "bg-red-500" : "bg-black"} 
+						text-[1vw] "text-[#e6e6e6] p-[0.1%] text-xl
+						rounded-full flex flex-shrink-0 justify-center items-center select-none`}
+					>{(value == 0 ? "K" : value)}</div>
+				)
+			})
 		}
 	</div>
 	
@@ -419,7 +474,7 @@ function Roulette() {
 	<div className="w-full h-1/2 flex justify-around p-[1%]">
 
 {/* Reds */}
-		<div className="w-[30%] flex flex-col"> {/* Bets */}
+		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
 			<div className="w-full h-1/5 p-[1%] flex justify-evenly items-center bg-[#525864] rounded-xl">
 				{
 					[
@@ -437,70 +492,61 @@ function Roulette() {
 				}
 			</div>
 
-{/* Yout bet */}
-			<div className="w-full h-[15%] flex justify-center items-center p-[2%] bg-[#525864] rounded-xl my-[1%]">
-				<p className="text-center text-[1vw]">100</p>
-			</div>
-
 {/* All bets */}
-			<div className="w-full h-[65%] p-2 bg-[#525864] rounded-xl overflow-auto">
+			<div className="w-full h-4/5 p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
-						<p>1</p>
+						<p>{allBets.filter(filterRed).length}</p>
 					</div>
 					<div>
-						<p>Łączny zakład: 100</p>
+						<p>Łączny zakład: {getBetsSum(filterRed)}</p>
 					</div>
 				</div>
 				<hr/>
-				<div className="flex justify-between items-center h-10">
-					<p>Rudy</p>
-					<div className="flex items-center gap-1">
-						<p className="font-bold text-lg">100</p>
-						<div className="w-4 h-8 bg-red-600 flex justify-center items-center rounded-lg">7</div>
-					</div>
-				</div>
+				{selfBets.filter(filterRed).map((item, index)=>(
+					<RouletteBet key={index} {...item} type={0} self />
+				))}
+
+				{bets.filter(filterRed).map((item, index)=>(
+					<RouletteBet key={index} {...item} type={0} />
+				))}
 			</div>
 		</div>
 
 {/* Yellow, odd and even */}
-		<div className="w-[30%] flex flex-col"> {/* Bets */}
+		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
 			<div className="w-full h-1/5 flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
 				<RouletteBetOption text={"PARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
 				<RouletteBetOption text={"K"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[13%]"} />
 				<RouletteBetOption text={"NIEPARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
 			</div>
 				
-{/* Yout bet */}
-			<div className="w-full h-[15%] flex justify-center items-center p-[2%] bg-[#525864] rounded-xl my-[1%]">
-				<p className="text-center text-[1vw]">100</p>
-			</div>
-
 {/* All bets */}
-			<div className="w-full h-[65%] p-2 bg-[#525864] rounded-xl overflow-auto">
+			<div className="w-full h-4/5 p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
-						<p>1</p>
+						<p>{allBets.filter(filterYellow).length}</p>
 					</div>
 					<div>
-						<p>Łączny zakład: 100</p>
+						<p>Łączny zakład: {getBetsSum(filterYellow)}</p>
 					</div>
 				</div>
 				<hr/>
-				<div className="flex justify-between items-center h-10">
-					<p>Rudy</p>
-					<div className="flex items-center gap-1">
-						<p className="font-bold text-lg">100</p>
-						<div className="w-4 h-8 bg-amber-500 text-black flex justify-center items-center rounded-lg">K</div>
-					</div>
-				</div>
+
+				{selfBets.filter(filterYellow).map((item, index)=>(
+					<RouletteBet key={index} {...item} type={1} self />
+				))}
+
+				{bets.filter(filterYellow).map((item, index)=>(
+					<RouletteBet key={index} {...item} type={1} />
+				))}
 			</div>
 		</div>
 
 {/* Black */}
-		<div className="w-[30%] flex flex-col"> {/* Bets */}
+		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
 			<div className="w-full h-1/5 p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
 				{
 						[
@@ -518,37 +564,26 @@ function Roulette() {
 				}
 			</div>
 
-{/* Yout bet */}
-			<div className="w-full h-[15%] flex justify-center items-center p-2 bg-[#525864] rounded-xl my-1">
-				<p className="text-center text-lg">100</p>
-			</div>
-
 {/* All bets */}
-			<div className="w-full h-[65%] p-2 bg-[#525864] rounded-xl overflow-auto">
+			<div className="w-full h-4/5 p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
-						<p>2</p>
+						<p>{allBets.filter(filterBlack).length}</p>
 					</div>
 					<div>
-						<p>Łączny zakład: 200</p>
+						<p>Łączny zakład: {getBetsSum(filterBlack)}</p>
 					</div>
 				</div>
 				<hr/>
-				<div className="flex justify-between items-center h-10">
-					<p>Rudy</p>
-					<div className="flex items-center gap-1">
-						<p className="font-bold text-lg">100</p>
-						<div className="w-4 h-8 bg-black flex justify-center items-center rounded-lg"></div>
-					</div>
-				</div>
-				<div className="flex justify-between items-center h-10">
-					<p>Rudy</p>
-					<div className="flex items-center gap-1">
-						<p className="font-bold text-lg">100</p>
-						<div className="w-4 h-8 bg-black flex justify-center items-center rounded-lg">10</div>
-					</div>
-				</div>
+
+				{selfBets.filter(filterBlack).map((item, index)=>(
+					<RouletteBet key={index} {...item} type={2} self />
+				))}
+
+				{bets.filter(filterBlack).map((item, index)=>(
+					<RouletteBet key={index} {...item} type={2} />
+				))}
 			</div>
 		</div>
 	</div>

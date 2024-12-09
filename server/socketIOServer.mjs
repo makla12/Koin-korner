@@ -49,7 +49,6 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
     const clearBets = () => {
         rouletteBets = [];
-        rouletteNS.emit("clearBets");
     }
 
     const rollRoulette = async () => {
@@ -108,7 +107,8 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
         socket.on("bet", (choice, bet) => {
             // if(!req.session.isLoggedIn) return;
-            console.log(choice, bet);
+            if(bet <= 0) return;
+
             const betObj = {
                 userId: 0,
                 name: "makla",

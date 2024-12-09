@@ -98,11 +98,6 @@ function Roulette({ isLogedIn, username }) {
 		rouletteSocket.on("roll", (score) => {
 			roll(score);
 		});
-
-		rouletteSocket.on("clearBets", ()=>{
-			setAllBets([]);
-		});
-		
 	},[rouletteSocket]);
 
 	useEffect(()=>{
@@ -130,6 +125,8 @@ function Roulette({ isLogedIn, username }) {
 		changeRoulettePosition(x);
 		timeLeft.current = 200 + 30 + 10;
 		setTimeout(() => {
+			setAllBets([]);
+			setRollHistory(prev => [{score:x}].concat(prev.slice(0,-1)));
 			reset();
 			setPlayTimer(true);	
 		}, 3000 + 1000);
@@ -503,7 +500,7 @@ function Roulette({ isLogedIn, username }) {
 						{text: "6", value:"6"},
 						{text: "7", value:"7"},
 					].map((div, index) => (
-						<RouletteBetOption clicked={bet} key={index} text={div.text} value={div.value} disabled={false} className={`${(false ? "bg-[#525252] opacity-50" : "bg-red-600 hover:bg-red-700")} border-red-800 px-[2%]`}/>
+						<RouletteBetOption clicked={bet} key={index} text={div.text} value={div.value} disabled={!playTimer} className={`${(!playTimer ? "bg-[#525252] opacity-50" : "bg-red-600 hover:bg-red-700")} border-red-800 px-[2%]`}/>
 					))
 				}
 			</div>
@@ -533,9 +530,9 @@ function Roulette({ isLogedIn, username }) {
 {/* Yellow, odd and even */}
 		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
 			<div className="w-full h-1/5 flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
-				<RouletteBetOption clicked={bet} text={"PARZYSTE"} value={"EVEN"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
-				<RouletteBetOption clicked={bet} text={"K"} value={"K"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[13%]"} />
-				<RouletteBetOption clicked={bet} text={"NIEPARZYSTE"} value={"ODD"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
+				<RouletteBetOption clicked={bet} text={"PARZYSTE"} value={"EVEN"} disabled={!playTimer} className={`${(!playTimer ? "bg-[#525252] opacity-50" : "bg-yellow-600 hover:bg-yellow-700")} border-yellow-800 px-[2%]`}/>
+				<RouletteBetOption clicked={bet} text={"K"} value={"K"} disabled={!playTimer} className={`${(!playTimer ? "bg-[#525252] opacity-50" : "bg-yellow-600 hover:bg-yellow-700")} border-yellow-800 px-[13%]`}/>
+				<RouletteBetOption clicked={bet} text={"NIEPARZYSTE"} value={"ODD"} disabled={!playTimer} className={`${(!playTimer ? "bg-[#525252] opacity-50" : "bg-yellow-600 hover:bg-yellow-700")} border-yellow-800 px-[2%]`}/>
 			</div>
 				
 {/* All bets */}
@@ -575,7 +572,7 @@ function Roulette({ isLogedIn, username }) {
 							{text: "13", value:"13"},
 							{text: "14", value:"14"},
 						].map((div, index) => (
-							<RouletteBetOption clicked={bet} key={index} text={div.text} value={div.value} className={"bg-gray-900 border-gray-950 hover:bg-gray-800 px-[2%]"}/>
+							<RouletteBetOption clicked={bet} key={index} text={div.text} value={div.value} disabled={!playTimer} className={`${(!playTimer ? "bg-[#525252] opacity-50" : "bg-gray-900 hover:bg-gray-800")} border-gray-950 px-[2%]`}/>
 						))
 				}
 			</div>

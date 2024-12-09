@@ -13,20 +13,8 @@ function Roulette({ isLogedIn, username }) {
 	
 	const [rouletteSocket, setRouletteSocket] = useState(null);
 	const [playTimer, setPlayTimer] = useState(false);
-	const [rollHistory, setRollHistory] = useState([0,1,6,3,9,6,2]);
-	const [allBets, setAllBets] = useState([
-		{name:"rudy",bet:500,choice:"RED"},
-		{name:"rudy",bet:500,choice:"BLACK"},
-		{name:"rudy",bet:500,choice:"10"},
-		{name:"rudy",bet:500,choice:"K"},
-		{name:"dsa",bet:200,choice:"2"},
-		{name:"dasdaaa",bet:500,choice:"BLACK"},
-		{name:"dsadj",bet:100,choice:"10"},
-		{name:"makla",bet:500,choice:"RED"},
-		{name:"makla",bet:200,choice:"2"},
-		{name:"makla",bet:500,choice:"BLACK"},
-		{name:"makla",bet:100,choice:"10"},
-	]);
+	const [rollHistory, setRollHistory] = useState([]);
+	const [allBets, setAllBets] = useState([]);
 
 	const betsSorted = allBets.sort((a,b) => (a.bet < b.bet ? 1 : (a.bet > b.bet ? -1 : 0)));
 
@@ -96,9 +84,12 @@ function Roulette({ isLogedIn, username }) {
 	},[]);
 
 	useEffect(()=>{
-		if(rouletteSocket == null) return;
+		if(!rouletteSocket) return;
 
-		rouletteSocket.on("time",(time) => {
+		rouletteSocket.on("initialParams",(time, bets, last10Rolls) => {
+			console.log(bets);
+			setAllBets(bets);
+			setRollHistory(last10Rolls);
 			const timerTime = 200 + 30 + 10 - (Date.now() - time) / 100;
 			setPlayTimer(true);
 			timeLeft.current = timerTime;
@@ -107,12 +98,36 @@ function Roulette({ isLogedIn, username }) {
 		rouletteSocket.on("roll", (score) => {
 			roll(score);
 		});
+
+		rouletteSocket.on("clearBets", ()=>{
+			setAllBets([]);
+		});
 		
 	},[rouletteSocket]);
 
+	useEffect(()=>{
+		if(!rouletteSocket) return;
+
+		rouletteSocket.on("addBet",(betObj) => {
+			let arr = Array.from(allBets);
+			arr.push(betObj);
+			setAllBets(arr);
+		});
+
+		return ()=>{
+			rouletteSocket.off("addBet");
+		}
+	},[rouletteSocket, allBets])
+
+	const bet = (choice) => {
+		if(!inputRef || !rouletteSocket) return;
+
+		rouletteSocket.emit("bet", choice, Number(inputRef.current.value));
+	}
+
 	const roll = (x) => {
 		setPlayTimer(false);
-		bet(x);
+		changeRoulettePosition(x);
 		timeLeft.current = 200 + 30 + 10;
 		setTimeout(() => {
 			reset();
@@ -125,7 +140,7 @@ function Roulette({ isLogedIn, username }) {
 		rouletteRef.current.style.transform = `translateX(0)`;
 	}
 
-	function bet(number) {
+	function changeRoulettePosition(number) {
 		if (!rouletteRef.current) return;
 
 		let steps = 5 * 15 * 9 + Math.random() * 4 - 2 - 1.3;
@@ -428,7 +443,8 @@ function Roulette({ isLogedIn, username }) {
 	<div id="rouletteHistory" className="w-2/3 h-5% flex gap-[1%] my-[0.1%]">
 		{
 			rollHistory.map((value, index) => {
-				const type = (value == 0 ? 1 : (value < 8 ? 0 : 2));
+				const score = Number(value.score).toFixed(0);
+				const type = (score == 0 ? 1 : (score < 8 ? 0 : 2));
 
 				return (
 					<div key={index} className={`
@@ -436,7 +452,7 @@ function Roulette({ isLogedIn, username }) {
 						${type == 1 ? "bg-yellow-500" : type == 0 ? "bg-red-500" : "bg-black"} 
 						text-[1vw] "text-[#e6e6e6] p-[0.1%] text-xl
 						rounded-full flex flex-shrink-0 justify-center items-center select-none`}
-					>{(value == 0 ? "K" : value)}</div>
+					>{(score == 0 ? "K" : score)}</div>
 				)
 			})
 		}
@@ -478,16 +494,16 @@ function Roulette({ isLogedIn, username }) {
 			<div className="w-full h-1/5 p-[1%] flex justify-evenly items-center bg-[#525864] rounded-xl">
 				{
 					[
-						{text:"CZERWONE"},
-						{text: "1"},
-						{text: "2"},
-						{text: "3"},
-						{text: "4"},
-						{text: "5"},
-						{text: "6"},
-						{text: "7"},
+						{text:"CZERWONE", value:"RED"},
+						{text: "1", value:"1"},
+						{text: "2", value:"2"},
+						{text: "3", value:"3"},
+						{text: "4", value:"4"},
+						{text: "5", value:"5"},
+						{text: "6", value:"6"},
+						{text: "7", value:"7"},
 					].map((div, index) => (
-						<RouletteBetOption key={index} text={div.text} disabled={false} className={`${(false ? "bg-[#525252] opacity-50" : "bg-red-600 hover:bg-red-700")} border-red-800 px-[2%]`}/>
+						<RouletteBetOption clicked={bet} key={index} text={div.text} value={div.value} disabled={false} className={`${(false ? "bg-[#525252] opacity-50" : "bg-red-600 hover:bg-red-700")} border-red-800 px-[2%]`}/>
 					))
 				}
 			</div>
@@ -517,9 +533,9 @@ function Roulette({ isLogedIn, username }) {
 {/* Yellow, odd and even */}
 		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
 			<div className="w-full h-1/5 flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
-				<RouletteBetOption text={"PARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
-				<RouletteBetOption text={"K"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[13%]"} />
-				<RouletteBetOption text={"NIEPARZYSTE"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
+				<RouletteBetOption clicked={bet} text={"PARZYSTE"} value={"EVEN"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
+				<RouletteBetOption clicked={bet} text={"K"} value={"K"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[13%]"} />
+				<RouletteBetOption clicked={bet} text={"NIEPARZYSTE"} value={"ODD"} className={"bg-yellow-600 border-yellow-800 hover:bg-yellow-700 px-[2%]"}/>
 			</div>
 				
 {/* All bets */}
@@ -550,16 +566,16 @@ function Roulette({ isLogedIn, username }) {
 			<div className="w-full h-1/5 p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
 				{
 						[
-							{text: "CZARNE"},
-							{text: "8"},
-							{text: "9"},
-							{text: "10"},
-							{text: "11"},
-							{text: "12"},
-							{text: "13"},
-							{text: "14"},
+							{text: "CZARNE", value:"BLACK"},
+							{text: "8", value:"8"},
+							{text: "9", value:"9"},
+							{text: "10", value:"10"},
+							{text: "11", value:"11"},
+							{text: "12", value:"12"},
+							{text: "13", value:"13"},
+							{text: "14", value:"14"},
 						].map((div, index) => (
-							<RouletteBetOption key={index} text={div.text} className={"bg-gray-900 border-gray-950 hover:bg-gray-800 px-[2%]"}/>
+							<RouletteBetOption clicked={bet} key={index} text={div.text} value={div.value} className={"bg-gray-900 border-gray-950 hover:bg-gray-800 px-[2%]"}/>
 						))
 				}
 			</div>

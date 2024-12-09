@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
-import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll } from "./sql.mjs";
-import { rollFromSeed } from "./games.mjs"
+import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls } from "./sql.mjs";
+import { rollFromSeed } from "./games.mjs";
 
 const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const io = new Server(httpServer, {
@@ -45,27 +45,12 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const rouletteNS = io.of("/rouletteNS");
     const timeBetweenRols = 20000 + 3000 + 1000;
     let roulletteTimeStart = Date.now();
-    let rouletteBets = [
-        {userId:1, amount:100.00, bet:"1"},
-        {userId:2, amount:100.00, bet:"2"},
-        {userId:0, amount:100.00, bet:"3"},
-        {userId:3, amount:100.00, bet:"4"},
-        {userId:4, amount:100.00, bet:"5"},
-        {userId:5, amount:100.00, bet:"6"},
-        {userId:6, amount:100.00, bet:"7"},
-        {userId:7, amount:100.00, bet:"8"},
-        {userId:8, amount:100.00, bet:"9"},
-        {userId:9, amount:100.00, bet:"10"},
-        {userId:10, amount:100.00, bet:"11"},
-        {userId:11, amount:100.00, bet:"12"},
-        {userId:12, amount:100.00, bet:"13"},
-        {userId:13, amount:100.00, bet:"14"},
-        {userId:14, amount:100.00, bet:"0"},
-        {userId:15, amount:100.00, bet:"Red"},
-        {userId:16, amount:100.00, bet:"Black"},
-        {userId:17, amount:100.00, bet:"Even"},
-        {userId:18, amount:100.00, bet:"Odd"},
-    ];
+    let rouletteBets = [ ];
+
+    const clearBets = () => {
+        rouletteBets = [];
+        rouletteNS.emit("clearBets");
+    }
 
     const rollRoulette = async () => {
         const [serverSeedId, serverSeed] = await getServerSeed();
@@ -100,6 +85,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
             }
         });
 
+        clearBets();
         saveRouletteRoll(round, score, serverSeedId, publicSeedId);
     }
 
@@ -108,18 +94,29 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         roulletteTimeStart = Date.now();
     }, timeBetweenRols);
 
-    rouletteNS.on("connection", (socket)=>{
+    rouletteNS.on("connection", async (socket)=>{
         console.log("connect");
-        socket.emit("time", roulletteTimeStart);
+        socket.emit("initialParams", roulletteTimeStart, rouletteBets, await getLast10RouletteRolls() );
         const req = socket.request;
         socket.use((__, next) => {
-            if(err) socket.disconnect();
+            req.session.reload((err) => {
+                if (err) socket.disconnect();
 
-            else next();
+                else next();
+            });
         });
 
-        socket.on("bet", ()=>{
-            console.log(req.session.userId);
+        socket.on("bet", (choice, bet) => {
+            // if(!req.session.isLoggedIn) return;
+            console.log(choice, bet);
+            const betObj = {
+                userId: 0,
+                name: "makla",
+                bet: Number(bet),
+                choice: choice,
+            }
+            rouletteBets.push(betObj);
+            rouletteNS.emit("addBet", betObj);
         });
     });
 }

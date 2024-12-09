@@ -156,4 +156,18 @@ const saveRouletteRoll = async (round, score, serverSeedId, publicSeedId) => {
 		if(conn) conn.release();
 	}
 }
-export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll };
+
+const getLast10RouletteRolls = async () => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		const last10Rolls = await conn.query("SELECT score from games ORDER BY round DESC LIMIT 10;");
+		return last10Rolls;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+getLast10RouletteRolls();
+
+export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls };

@@ -1,15 +1,16 @@
 import { useState, useRef } from "react";
 
 function Dice() {
-  const [multiplier, setMultiplier] = useState(1.94);
-  const [chance, setChance] = useState(50);
-  const [profit, setProfit] = useState(1.94);
+  const [multiplier, setMultiplier] = useState(1.98);
+  const [chance, setChance] = useState("50%");
+  const [profit, setProfit] = useState(1.98);
+  const [showScore, setShowScore] = useState();
   const inputRef = useRef(null);
 
   function update(e) {
-    setChance(e.target.value);
-    setMultiplier(-1/200*Math.pow(e.target.value) + 50);
-    setProfit();
+    setChance(e.target.value + "%");
+    setMultiplier((49.5  / (e.target.value/2)).toFixed(3));
+    setProfit((Number(49.5  / (e.target.value/2)) * Number(inputRef.current.value)).toFixed(3));
   }
 
   function changeInput(action) {
@@ -49,6 +50,14 @@ function Dice() {
 		inputRef.current.value = Math.floor(Number(inputRef.current.value));
 	}
 
+  function roll() {
+    const number = (Math.random() * 100).toFixed(2);
+    setShowScore(number);
+    if (chance > number) {
+      console.log(number);
+    }
+  }
+
     return (
     <div className="w-full h-full p-2 flex flex-col justify-between">
 
@@ -64,7 +73,7 @@ function Dice() {
               ].map((div, key) => (
                 <div key={key} className="w-1/3 p-1 flex flex-col justify-center items-center select-none">
                   <label htmlFor="bet" className="select-none h-1/2 text-lg">{div.text}</label> 
-                  <input type="number" disabled value={div.value} className="
+                  <input type="text" disabled value={div.value} className="
                   w-2/3 h-1/2 rounded-full py-1 px-3 m-1 bg-[#525864] border border-black select-none text-lg
                   "/>
               </div>
@@ -72,14 +81,21 @@ function Dice() {
             }
             </div>
             
-            <div className="w-full h-1/4 mt-[1%] flex justify-center items-center">
-              <p className="mx-1 text-xl select-none">0</p>
-              <div className="w-[1%] h-full bg-[#ff0000] rounded-l-full"></div>
-              <input type="range" min="1" max="99" id="diceSlider" className="
-              w-3/4 h-full bg-[#00bf63]
-              " onChange={update}/>
-              <div className="w-[1%] h-full bg-[#00bf63] rounded-r-full"></div>
-              <p className="mx-1 text-xl select-none">100</p>
+            <div className="w-full h-1/4 mt-[1%] flex flex-col justify-center items-center">
+             
+              <div className="w-full h-3/4 flex justify-center items-center">
+                <p className="mx-1 text-xl select-none">0</p>
+                <div className="w-[1%] h-full bg-[#ff0000] rounded-l-full"></div>
+                <input type="range" min="2" max="98" id="diceSlider" className="
+                w-3/4 h-full bg-[#00bf63]
+                " onChange={update}/>
+                <div className="w-[1%] h-full bg-[#00bf63] rounded-r-full"></div>              
+                <p className="mx-1 text-xl select-none">100</p>
+              </div>
+              <div className={`w-[77%] h-1/4 flex flex-col translate-x-[${showScore - 1}%]`}>
+                <p className="text-sm">{showScore == null ? "" : "⬆"}</p>
+                <p className="text-sm">{showScore == null ? "" : showScore}</p>
+              </div>
             </div>
         </form>
 
@@ -115,7 +131,7 @@ function Dice() {
         </div>
 
         <div className="w-full h-[12.5%] flex justify-center items-center">
-          <button className="w-1/2 h-full bg-[#00bf63] text-lg p-4 rounded-full hover:bg-[#56ca72] select-none flex justify-center items-center">
+          <button className="w-1/2 h-full bg-[#00bf63] text-lg p-4 rounded-full hover:bg-[#56ca72] select-none flex justify-center items-center"  onClick={roll}>
             WYPŁAĆ
           </button>
         </div>

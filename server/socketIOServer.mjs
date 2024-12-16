@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls } from "./sql.mjs";
+import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls,  } from "./sql.mjs";
 import { rollFromSeed } from "./games.mjs";
 
 const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
@@ -106,12 +106,12 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         });
 
         socket.on("bet", (choice, bet) => {
-            // if(!req.session.isLoggedIn) return;
+            if(!req.session.isLoggedIn) return;
             if(bet <= 0) return;
 
             const betObj = {
                 userId: 0,
-                name: "makla",
+                name: req.session.username,
                 bet: Number(bet),
                 choice: choice,
             }

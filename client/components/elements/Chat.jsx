@@ -25,6 +25,7 @@ function Chat() {
         chatSocket.on("message", (messageInfo) => {
             let newMessages = Array.from(messages);
             newMessages.push(messageInfo);
+            if(newMessages.length > 50) newMessages.splice(0, 1);
             setMessages(newMessages);
         });
 

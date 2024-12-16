@@ -45,7 +45,7 @@ const register = async (email, username, password) => {
 	try{
 		conn = await pool.getConnection();
 		try{
-			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 5, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
+			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 100, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
 			return Number(res.insertId);
 		}
 		catch (e){
@@ -78,6 +78,24 @@ const getMessages = async () => {
 	finally{
 		if(conn) conn.release();
 	}
+}
+
+const getBalance = async (userId) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		let res = await conn.query("SELECT balance FROM users where id = ?;", [userId]);
+		if(res.length == 0) return 0;
+
+		return res[0].balance;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+
+const saveBet = async () => {
+	
 }
 
 const getServerSeed = async () => {
@@ -168,6 +186,5 @@ const getLast10RouletteRolls = async () => {
 		if(conn) conn.release();
 	}
 }
-getLast10RouletteRolls();
 
-export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls };
+export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls	 };

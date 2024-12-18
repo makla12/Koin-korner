@@ -36,12 +36,12 @@ function Chat() {
     return (
         <div id="chatDiv" className="
             w-[20%] min-w-[20%] h-full flex flex-col justify-between items-center 
-            rounded-xl bg-[#d3d3d3] dark:bg-[#27272a]"
+            rounded-xl bg-[#27272a]"
         >
             {/* Room selector */}
             <div className="w-full flex justify-center items-center">
                 <select id="roomSelect" className="
-                    bg-[#a0a1a3] dark:bg-zinc-500 text-[#181818] text-center text-lg
+                    bg-zinc-500 text-[#181818] text-center text-lg
                     w-[90%] p-2 mt-2 rounded-full
                     hover:cursor-pointer"
                 >
@@ -67,7 +67,7 @@ function Chat() {
             <div className="flex justify-center items-center w-full p-1">
                 <input type="text" id="messageInput" className="
                     w-10/12 h-full rounded-lg mr-1 p-2
-                    text-base bg-[#a0a1a3] dark:bg-[#5d6066]"
+                    text-base bg-[#5d6066]"
                 />
 
                 <button onClick={()=>{

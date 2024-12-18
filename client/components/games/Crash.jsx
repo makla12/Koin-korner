@@ -230,9 +230,6 @@ function Crash() {
 			</div>
 		</div>
 	</div>
-	{
-		console.log("rudy to cwel")
-	}
     </>
   	);
 }

@@ -8,7 +8,7 @@ import { Unstable_Popup as Popup } from '@mui/base';
 import { useState } from 'react';
 import axios from 'axios';
 
-function MainNav({ isLoggedIn, username }) {
+function MainNav({ isLoggedIn, username, balance }) {
     const [themeSrc, setThemeSrc] = useState(darkTheme);
     const [anchor, setAnchor] = useState(null);
     const [anchor2, setAnchor2] = useState(null);
@@ -49,7 +49,7 @@ function MainNav({ isLoggedIn, username }) {
     const open2 = Boolean(anchor2);
     const id = open ? 'simple-popper' : undefined;
     const id2 = open2 ? 'simple-popper' : undefined;
- 
+
     return (
         <div className="
             flex flex-row justify-between 
@@ -133,7 +133,7 @@ function MainNav({ isLoggedIn, username }) {
                     flex justify-center items-center gap-5 
                     text-[#181818] dark:text-[#f7f7f7] font-title"
                 >
-                    <p className="h-1/2 text-5xl text-center flex justify-center items-center">100</p>
+                    <p className="h-1/2 text-5xl text-center flex justify-center items-center">{balance.toFixed(0)}</p>
                     <Image src={koinPic} alt="koin" draggable={false} className="h-1/2 w-auto"/>
                 </div>
                 {/* Profile */}

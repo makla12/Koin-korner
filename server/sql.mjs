@@ -85,7 +85,7 @@ const getBalance = async (userId) => {
 	try{
 		conn = await pool.getConnection();
 		let res = await conn.query("SELECT balance FROM users where id = ?;", [userId]);
-		if(res.length == 0) return 0;
+		if(res.length != 1) return 0;
 
 		return res[0].balance;
 	}
@@ -94,8 +94,24 @@ const getBalance = async (userId) => {
 	}
 }
 
-const saveBet = async () => {
-	
+const saveBet = async (userId, gameId, bet, mult) => {
+	console.log("a");
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		try{
+			await conn.query("INSERT INTO bets VALUE(null, ?, ?, ?, ?);", [userId, gameId, bet, mult]);
+			conn.query("UPDATE users SET balance = balance - ? + ? WHERE id = ?;", [bet, bet * mult, userId])
+			return;
+		}
+		catch(err){
+			console.log(err);
+			return;
+		}
+	}
+	finally{
+		if(conn) conn.release();
+	}
 }
 
 const getServerSeed = async () => {
@@ -168,7 +184,8 @@ const saveRouletteRoll = async (round, score, serverSeedId, publicSeedId) => {
 	let conn;
 	try{
 		conn = await pool.getConnection();
-		await conn.query("INSERT INTO games VALUES(null, ?, ?, ?, ?)", [round, score, serverSeedId, publicSeedId]);
+		const res = await conn.query("INSERT INTO games VALUES(null, ?, ?, ?, ?)", [round, score, serverSeedId, publicSeedId]);
+		return res.insertId;
 	}
 	finally{
 		if(conn) conn.release();
@@ -187,4 +204,4 @@ const getLast10RouletteRolls = async () => {
 	}
 }
 
-export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls	 };
+export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls, getBalance, saveBet};

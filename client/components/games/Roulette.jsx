@@ -5,7 +5,7 @@ import blankProfile from "@/public/blank_profile.png";
 import { RouletteBetOption } from "../elements/RouletteBetOption";
 import { RouletteBet } from "../elements/RouletteBet";
 
-function Roulette({ isLogedIn, username }) {
+function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	const rouletteRef = useRef(null);
 	const inputRef = useRef(null);
 	const timeLeft = useRef(0);
@@ -104,6 +104,10 @@ function Roulette({ isLogedIn, username }) {
 			timeLeft.current = timerTime;
 		});
 
+		rouletteSocket.on("confirmBet", ()=>{
+			updateBalance();
+		});
+
 		rouletteSocket.on("roll", (score) => {
 			roll(score);
 		});
@@ -134,6 +138,7 @@ function Roulette({ isLogedIn, username }) {
 		changeRoulettePosition(x);
 		timeLeft.current = 200 + 30 + 10;
 		setTimeout(() => {
+			updateBalance();
 			setAllBets([]);
 			setRollHistory(prev => [{score:x}].concat(prev.slice(0,-1)));
 			reset();

@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
-import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls,  } from "./sql.mjs";
+import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls, saveBet, } from "./sql.mjs";
 import { rollFromSeed } from "./games.mjs";
+import { getTrueBalance, rouletteBets } from "./bets.mjs";
 
 const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const io = new Server(httpServer, {
@@ -45,10 +46,9 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const rouletteNS = io.of("/rouletteNS");
     const timeBetweenRols = 20000 + 3000 + 1000;
     let roulletteTimeStart = Date.now();
-    let rouletteBets = [ ];
 
     const clearBets = () => {
-        rouletteBets = [];
+        rouletteBets.splice(0,rouletteBets.length);
     }
 
     const rollRoulette = async () => {
@@ -56,36 +56,62 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         const [publicSeedId, publicSeed] = await getPublicSeed(1);
         const round = await getGameRound(1);
         
-        const score = rollFromSeed(serverSeed, publicSeed, round.toString() );
+        const score = rollFromSeed(serverSeed, publicSeed, round.toString());
+        const gameId = await saveRouletteRoll(round, score, serverSeedId, publicSeedId);
         rouletteNS.emit("roll", score);
 
         rouletteBets.forEach((user)=>{
-            if(!isNaN(Number(user.bet)) || score == 0){
-                if(Number(user.bet) == score) console.log(user.userId, "win", user.amount * 14);
-            }
-            else{
-                switch(user.bet){
-                    case "Red":
-                        if(score <= 7) console.log(user.userId, "win", user.amount * 2);
-                        break;
-
-                    case "Black":
-                        if(score > 7) console.log(user.userId, "win", user.amount * 2);
-                        break;
-                    
-                    case "Even":
-                        if(score % 2 == 0) console.log(user.userId, "win", user.amount * 7);
-                        break;
-
-                    case "Odd":
-                        if(score % 2 != 0) console.log(user.userId, "win", user.amount * 7);
-                        break;
+            console.log(user);
+            if(!isNaN(Number(user.choice))){
+                if(Number(user.choice) == score){
+                    saveBet(user.userId, gameId, user.bet, 14);
+                    return;
                 }
+                return;
             }
+
+            switch(user.choice){
+                case "RED":
+                    if(score <= 7 && score != 0){
+                        saveBet(user.userId, gameId, user.bet, 2);
+                        return;
+                    } 
+                    break;
+
+                case "BLACK":
+                    if(score > 7){ 
+                        saveBet(user.userId, gameId, user.bet, 2);
+                        return;
+                    }
+                    break;
+                
+                case "EVEN":
+                    if(score % 2 == 0 && score != 0){ 
+                        saveBet(user.userId, gameId, user.bet, 2);
+                        return;
+                    }
+                    break;
+
+                case "ODD":
+                    if(score % 2 != 0){ 
+                        saveBet(user.userId, gameId, user.bet, 2);
+                        return;
+                    }
+                    break;
+
+                case "K":
+                    if(score == 0){
+                        console.log("a");
+                        saveBet(user.userId, gameId, user.bet, 14);
+                        return;
+                    }
+                    break;
+            }
+            saveBet(user.userId, gameId, user.bet, 0);
+
         });
 
         clearBets();
-        saveRouletteRoll(round, score, serverSeedId, publicSeedId);
     }
 
     setInterval(()=>{
@@ -105,18 +131,20 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
             });
         });
 
-        socket.on("bet", (choice, bet) => {
+        socket.on("bet",async (choice, bet) => {
             if(!req.session.isLoggedIn) return;
             if(bet <= 0) return;
+            if(await getTrueBalance(req.session.userId) < bet) return;
 
             const betObj = {
-                userId: 0,
+                userId: req.session.userId,
                 name: req.session.username,
                 bet: Number(bet),
                 choice: choice,
             }
             rouletteBets.push(betObj);
             rouletteNS.emit("addBet", betObj);
+            socket.emit("confirmBet");
         });
     });
 }

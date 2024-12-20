@@ -37,9 +37,8 @@ function Chat() {
     return (
         <div id="chatDiv" className="
             w-[20%] min-w-[20%] h-full flex flex-col justify-between items-center 
-            rounded-xl bg-[#d3d3d3] dark:bg-[#27272a]"
+            rounded-xl bg-[#27272a]"
         >
-
             {/* Chat */}
             <div className="
                 h-full w-11/12 flex flex-col justify-start gap-5

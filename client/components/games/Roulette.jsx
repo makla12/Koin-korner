@@ -80,7 +80,11 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 
 // Crerate interval form timer
 		const timeInterval = setInterval(()=>{
-            if(timeLeft <= 0) return; 
+            if(timeLeft <= 0) 
+			{
+				timeLeft = 0;
+				return;
+			}
 
 			timeLeft.current = timeLeft.current - 1;
 
@@ -99,7 +103,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 			console.log(bets);
 			setAllBets(bets);
 			setRollHistory(last10Rolls);
-			const timerTime = 200 + 30 + 10 - (Date.now() - time) / 100;
+			const timerTime = 150 + 30 + 10 - (Date.now() - time) / 100;
 			setPlayTimer(true);
 			timeLeft.current = timerTime;
 		});
@@ -136,7 +140,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	const roll = (x) => {
 		setPlayTimer(false);
 		changeRoulettePosition(x);
-		timeLeft.current = 200 + 30 + 10;
+		timeLeft.current = 150 + 30 + 10;
 		setTimeout(() => {
 			updateBalance();
 			setAllBets([]);
@@ -451,7 +455,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	</div>
 
 {/* Roulette history */}
-	<div id="rouletteHistory" className="w-2/3 h-5% flex gap-[1%] my-[0.1%]">
+	<div id="rouletteHistory" className="w-2/3 h-5% flex flex-row-reverse justify-end gap-[1%] my-[0.1%]">
 		{
 			rollHistory.map((value, index) => {
 				const score = Number(value.score).toFixed(0);
@@ -498,11 +502,11 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	</div>
 
 {/* Bet tables */}
-	<div className="w-full h-1/2 flex justify-around p-[1%]">
+	<div className="w-full h-2/3 flex justify-around p-[1%]">
 
 {/* Reds */}
 		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
-			<div className="w-full h-1/5 p-[1%] flex justify-evenly items-center bg-[#525864] rounded-xl">
+			<div className="w-full h-[15%] p-[1%] flex justify-evenly items-center bg-[#525864] rounded-xl">
 				{
 					[
 						{text:"CZERWONE", value:"RED"},
@@ -520,7 +524,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 			</div>
 
 {/* All bets */}
-			<div className="w-full h-4/5 p-2 bg-[#525864] rounded-xl overflow-auto">
+			<div className="w-full h-[85%] p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
@@ -543,14 +547,14 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 
 {/* Yellow, odd and even */}
 		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
-			<div className="w-full h-1/5 flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
+			<div className="w-full h-[15%] flex justify-between items-center p-[1%] bg-[#525864] rounded-xl">
 				<RouletteBetOption clicked={bet} text={"PARZYSTE"} value={"EVEN"} disabled={!playTimer|| selfBetsNums.includes("EVEN") } className={`${(!playTimer || selfBetsNums.includes("EVEN") ? "bg-[#525252] opacity-50" : "bg-yellow-600 hover:bg-yellow-700")} border-yellow-800 px-[2%]`}/>
 				<RouletteBetOption clicked={bet} text={"K"} value={"K"} disabled={!playTimer|| selfBetsNums.includes("K") } className={`${(!playTimer || selfBetsNums.includes("K") ? "bg-[#525252] opacity-50" : "bg-yellow-600 hover:bg-yellow-700")} border-yellow-800 px-[13%]`}/>
 				<RouletteBetOption clicked={bet} text={"NIEPARZYSTE"} value={"ODD"} disabled={!playTimer|| selfBetsNums.includes("ODD") } className={`${(!playTimer || selfBetsNums.includes("ODD") ? "bg-[#525252] opacity-50" : "bg-yellow-600 hover:bg-yellow-700")} border-yellow-800 px-[2%]`}/>
 			</div>
 				
 {/* All bets */}
-			<div className="w-full h-4/5 p-2 bg-[#525864] rounded-xl overflow-auto">
+			<div className="w-full h-[85%] p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
@@ -574,7 +578,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 
 {/* Black */}
 		<div className="w-[30%] flex flex-col gap-[1vh]"> {/* Bets */}
-			<div className="w-full h-1/5 p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
+			<div className="w-full h-[15%] p-[1%] flex justify-between items-center bg-[#525864] rounded-xl">
 				{
 						[
 							{text: "CZARNE", value:"BLACK"},
@@ -592,7 +596,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 			</div>
 
 {/* All bets */}
-			<div className="w-full h-4/5 p-2 bg-[#525864] rounded-xl overflow-auto">
+			<div className="w-full h-[85%] p-2 bg-[#525864] rounded-xl overflow-auto">
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>

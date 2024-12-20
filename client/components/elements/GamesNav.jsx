@@ -3,7 +3,7 @@ import Link from "next/link";
 function GamesNav() {
     return (
     <div className="
-        w-full h-[12.5%] flex justify-center items-center  
+        w-full h-32 flex justify-center items-center  
         bg-[#d3d3d3] dark:bg-[#27272a] rounded-full"
     >
         {[

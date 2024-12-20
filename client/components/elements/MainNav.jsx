@@ -53,7 +53,7 @@ function MainNav({ isLoggedIn, username, balance }) {
     return (
         <div className="
             flex flex-row justify-between 
-            w-full h-[12.5vh] bg-[#d3d3d3] dark:bg-[#27272a]"
+            w-full h-28 bg-[#d3d3d3] dark:bg-[#27272a]"
         >
             {/* First half of nav */}
             <div className="flex justify-center items-center select-none">

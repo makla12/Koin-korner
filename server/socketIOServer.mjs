@@ -44,7 +44,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
 //Rolulette
     const rouletteNS = io.of("/rouletteNS");
-    const timeBetweenRols = 20000 + 3000 + 1000;
+    const timeBetweenRols = 15000 + 3000 + 1000;
     let roulletteTimeStart = Date.now();
 
     const clearBets = () => {

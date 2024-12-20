@@ -61,13 +61,11 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         rouletteNS.emit("roll", score);
 
         rouletteBets.forEach((user)=>{
-            console.log(user);
             if(!isNaN(Number(user.choice))){
                 if(Number(user.choice) == score){
                     saveBet(user.userId, gameId, user.bet, 14);
                     return;
                 }
-                return;
             }
 
             switch(user.choice){
@@ -101,7 +99,6 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
                 case "K":
                     if(score == 0){
-                        console.log("a");
                         saveBet(user.userId, gameId, user.bet, 14);
                         return;
                     }

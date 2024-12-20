@@ -108,7 +108,6 @@ const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
             return 0;
         }
         const registerId = await register(req.session.regEmail, req.session.regUsername, req.session.regPassword);
-        console.log(registerId);
         req.session.isLoggedIn = registerId != 0;
         req.session.userId = registerId;
         if(registerId != 0) req.session.username = req.session.regUsername;

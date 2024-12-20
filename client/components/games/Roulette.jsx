@@ -80,9 +80,9 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 
 // Crerate interval form timer
 		const timeInterval = setInterval(()=>{
-			timeLeft.current = timeLeft.current - 1;
-
             if(timeLeft <= 0) return; 
+
+			timeLeft.current = timeLeft.current - 1;
 
 			if(timerRef.current) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
         },100);
@@ -524,10 +524,10 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
-						<p>{allBets.filter(filterRed).length}</p>
+						<p className="font-bold">{allBets.filter(filterRed).length}</p>
 					</div>
 					<div>
-						<p>Łączny zakład: {getBetsSum(filterRed)}</p>
+						<p className="font-bold">Łączny zakład: {getBetsSum(filterRed)}</p>
 					</div>
 				</div>
 				<hr/>
@@ -554,10 +554,10 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
-						<p>{allBets.filter(filterYellow).length}</p>
+						<p className="font-bold">{allBets.filter(filterYellow).length}</p>
 					</div>
 					<div>
-						<p>Łączny zakład: {getBetsSum(filterYellow)}</p>
+						<p className="font-bold">Łączny zakład: {getBetsSum(filterYellow)}</p>
 					</div>
 				</div>
 				<hr/>
@@ -596,10 +596,10 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 				<div className="flex justify-between items-center">
 					<div className="flex justify-center items-center">
 						<Image src={blankProfile} alt="blankProfile" draggable={false} className="w-10"/>
-						<p>{allBets.filter(filterBlack).length}</p>
+						<p className="font-bold">{allBets.filter(filterBlack).length}</p>
 					</div>
 					<div>
-						<p>Łączny zakład: {getBetsSum(filterBlack)}</p>
+						<p className="font-bold">Łączny zakład: {getBetsSum(filterBlack)}</p>
 					</div>
 				</div>
 				<hr/>

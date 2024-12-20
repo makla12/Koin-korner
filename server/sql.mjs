@@ -45,7 +45,7 @@ const register = async (email, username, password) => {
 	try{
 		conn = await pool.getConnection();
 		try{
-			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 100, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
+			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 1000, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
 			return Number(res.insertId);
 		}
 		catch (e){
@@ -95,7 +95,6 @@ const getBalance = async (userId) => {
 }
 
 const saveBet = async (userId, gameId, bet, mult) => {
-	console.log("a");
 	let conn;
 	try{
 		conn = await pool.getConnection();

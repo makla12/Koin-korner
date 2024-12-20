@@ -4,11 +4,13 @@ import { LineChart, ResponsiveChartContainer, ChartsXAxis, ChartsYAxis, LinePlot
 function Crash() {
 	const input1Ref = useRef(null);
 	const input2Ref = useRef(null);
-	const [xAxis, setXAxis] = useState([1]);
+
+	const [crashSocket, SetCrashSocket] = useState(null);
+	const [xAxis, setXAxis] = useState([0]);
 	const [multiplier, setMultiplier] = useState([1]);
 	const [change, setChange] = useState(false);
 	const [animPlay, setAnimPlay] = useState(false);
-	const [waitingTime, setWaitingTime] = useState(20);
+	const [waitingTime, setWaitingTime] = useState(0.1);
 	
 	function animation() {
 		setTimeout(timeout, 10);
@@ -21,16 +23,16 @@ function Crash() {
 		let newXAxis = Array.from(xAxis);
 		let newMult = Array.from(multiplier);
 		newXAxis.push(newXAxis[newXAxis.length - 1] + 0.01);
-		newMult.push(Math.pow(Math.E, newXAxis[newXAxis.length - 1] * 0.0693));
-		  
+		newMult.push(Math.pow(Math.E, newXAxis[newXAxis.length - 1] * 0.1));
+
 		setXAxis(newXAxis);
 		setMultiplier(newMult);
 		setChange(!change);
-	  }
+	}
 	
-	  useEffect(() => {
+	useEffect(() => {
 		animation();
-	  }, [change]);
+	}, [change]);
 
 	function changeInput(action) {
 		if (input1Ref.current) {
@@ -92,7 +94,7 @@ function Crash() {
 		setAnimPlay(false);
 	}
 
-  	return (
+	return (
     <>
 	{/* e^{0.0693x} */}
 	<div className="w-full h-full p-2">
@@ -110,14 +112,14 @@ function Crash() {
 				<p className="z-5 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
 				text-5xl text-[#3baa60] select-none">x{(multiplier[multiplier.length - 1]).toFixed(2)}</p>
 				<ResponsiveChartContainer 
-					xAxis={[{ data: xAxis, min: 1 }]}
-					yAxis={[{min: 1}]}
+					xAxis={[{ data: xAxis}]}
+					yAxis={[{ min: 1 }]}
 					series={[
 						{
 							type:"line",
 							data: multiplier,
 							color: "#00bf62",
-							area: true
+							area:true
 						},
 					]}
 
@@ -231,7 +233,7 @@ function Crash() {
 		</div>
 	</div>
     </>
-  	);
+	);
 }
 
 export { Crash };

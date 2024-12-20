@@ -10,7 +10,7 @@ const dev = true;
 //Ustawienia sesji i CORS
 const sessionMiddleware = session({
     secret:process.env.SESSION_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: true,
 });
 

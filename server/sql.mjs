@@ -45,7 +45,7 @@ const register = async (email, username, password) => {
 	try{
 		conn = await pool.getConnection();
 		try{
-			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 5, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
+			const res = await conn.query("INSERT INTO users VALUE(null, ?, ?, 1000, ?)", [username, crypto.createHash("sha256").update(password).digest("hex"), email]); //Dodanie użytkownika do bazy danych
 			return Number(res.insertId);
 		}
 		catch (e){
@@ -74,6 +74,39 @@ const getMessages = async () => {
 		conn = await pool.getConnection();
 		let res = await conn.query("SELECT username, date, message FROM chat INNER JOIN users ON chat.user_id = users.id ORDER BY date ASC LIMIT 50;");
 		return res;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+
+const getBalance = async (userId) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		let res = await conn.query("SELECT balance FROM users where id = ?;", [userId]);
+		if(res.length != 1) return 0;
+
+		return res[0].balance;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+
+const saveBet = async (userId, gameId, bet, mult) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		try{
+			await conn.query("INSERT INTO bets VALUE(null, ?, ?, ?, ?);", [userId, gameId, bet, mult]);
+			conn.query("UPDATE users SET balance = balance - ? + ? WHERE id = ?;", [bet, bet * mult, userId])
+			return;
+		}
+		catch(err){
+			console.log(err);
+			return;
+		}
 	}
 	finally{
 		if(conn) conn.release();
@@ -150,10 +183,24 @@ const saveRouletteRoll = async (round, score, serverSeedId, publicSeedId) => {
 	let conn;
 	try{
 		conn = await pool.getConnection();
-		await conn.query("INSERT INTO games VALUES(null, ?, ?, ?, ?)", [round, score, serverSeedId, publicSeedId]);
+		const res = await conn.query("INSERT INTO games VALUES(null, ?, ?, ?, ?)", [round, score, serverSeedId, publicSeedId]);
+		return res.insertId;
 	}
 	finally{
 		if(conn) conn.release();
 	}
 }
-export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll };
+
+const getLast10RouletteRolls = async () => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		const last10Rolls = await conn.query("SELECT score from games ORDER BY round DESC LIMIT 10;");
+		return last10Rolls;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+
+export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls, getBalance, saveBet};

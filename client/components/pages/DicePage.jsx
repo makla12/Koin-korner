@@ -8,6 +8,7 @@ import { Dice } from '@/components/games/Dice'
 function DicePage() {
     const [ isLoggedIn, setIsLoggedIn ] = useState(null);
     const [username, setUsername] = useState(null);
+    const [balance, setBalance] = useState(0);
 
     const fetchLogin = async () => {
         const res = await axios.get("http://" + window.location.hostname + ":8080/auth/checkLogIn",{withCredentials:true});
@@ -15,17 +16,22 @@ function DicePage() {
         setUsername(res.data.username);
 
     }
+    const getBalance = async () => {
+        const res = await axios.get("http://" + window.location.hostname + ":8080/app/balance",{withCredentials:true})
+        setBalance(Number(res.data.balance));
+    }
     useEffect(()=>{
         fetchLogin();
+        getBalance();
     },[])
 	
   	return (
 	<>
-		<MainNav isLoggedIn={isLoggedIn} username={username}/>
+		<MainNav balance={balance} isLoggedIn={isLoggedIn} username={username}/>
 		<div className="flex justify-between items-center p-5 h-[87.5vh]">
 			<Chat />
 			<GameContainer> 
-				<Dice />
+				<Dice balance={balance} setBalance={setBalance}/>
 			</GameContainer>
 		</div>
 	</>

@@ -6,20 +6,25 @@ import { GameContainer } from '@/components/elements/GameContainer';
 function DefaultPage() {
     const [ isLoggedIn, setIsLoggedIn ] = useState(null);
     const [username, setUsername] = useState(null);
+    const [balance, setBalance] = useState(0);
 
     const fetchLogin = async () => {
         const res = await axios.get("http://" + window.location.hostname + ":8080/auth/checkLogIn",{withCredentials:true});
         setIsLoggedIn(res.data.isLoggedIn);
         setUsername(res.data.username);
     }
+    const getBalance = async () => {
+        const res = await axios.get("http://" + window.location.hostname + ":8080/app/balance",{withCredentials:true})
+        setBalance(Number(res.data.balance));
+    }
     useEffect(()=>{
-        console.log("http://" + window.location.hostname + ":8080/auth/checkLogIn");
         fetchLogin();
+        getBalance();
     },[])
 
     return (
     <>
-		<MainNav isLoggedIn={isLoggedIn} username={username}/>
+		<MainNav balance={balance} isLoggedIn={isLoggedIn} username={username}/>
         <div className="flex justify-between items-center p-5 h-[87.5vh]">
             <GameContainer>
                 <div className="p-4 text-center">

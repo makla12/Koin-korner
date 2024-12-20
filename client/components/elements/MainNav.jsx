@@ -1,10 +1,11 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import profilePic from '@/public/profile_pic.svg';
 import koinPic from '@/public/koin.svg';
 import { useState } from 'react';
 import axios from 'axios';
 
-function MainNav({ isLoggedIn, username }) {
+function MainNav({ isLoggedIn, username, balance }) {
     const [anchor, setAnchor] = useState(null);
     const [anchor2, setAnchor2] = useState(null);
 
@@ -13,23 +14,23 @@ function MainNav({ isLoggedIn, username }) {
     }
     const open2 = Boolean(anchor2);
     const id2 = open2 ? 'simple-popper' : undefined;
- 
+
     return (
         <div className="
             flex flex-row justify-between 
-            w-full h-[12.5vh] bg-[#27272a]"
+            w-full h-28 bg-[#27272a]"
         >
             {/* First half of nav */}
             <div className="flex justify-center items-center select-none">
 
                 {/* Title */}
-                <div onClick={()=>{window.location = '/'}} id="title" className="
+                <Link href="/" id="title" className="
                     h-full flex justify-center items-center
                     px-2.5 py-0.5 tracking-[0.25rem]
                     text-yellow-500 cursor-pointer"
                 >
                     <h1 className="text-2xl text-center transition-all ease-in-out hover:text-yellow-400">KOIN KORNER</h1>
-                </div>
+                </Link>
                 
                 {/* Rest of links */}
                 {
@@ -38,12 +39,12 @@ function MainNav({ isLoggedIn, username }) {
                         {name: "Wypłacanie", href: "/WIP"},
                         {name: "Dowód uczciwości", href: "/provablyFair"}
                     ].map((div, index) => (
-                        <div key={index} className="
-                            text-xl text-[#e6e6e6] text-center hover:text-[#aaaaaa] hover:translate-y-1 hover:cursor-pointer
+                        <Link href={div.href} key={index} className="
+                            text-xl text-[#181818] dark:text-[#e6e6e6] text-center hover:text-[#505050] dark:hover:text-[#aaaaaa] hover:translate-y-1 hover:cursor-pointer
                             flex justify-center items-center h-full px-2.5 py-0.5 transition-all ease-in-out"
                         >
-                            <a href={div.href} className="tracking-widest no-underline">{div.name}</a>
-                        </div>
+                            <div className="tracking-widest">{div.name}</div>
+                        </Link>
                     ))
                 }
             
@@ -59,7 +60,7 @@ function MainNav({ isLoggedIn, username }) {
                     flex justify-center items-center gap-5 
                     text-[#f7f7f7] font-title"
                 >
-                    <p className="h-1/2 text-5xl text-center flex justify-center items-center">100</p>
+                    <p className="h-1/2 text-5xl text-center flex justify-center items-center">{balance.toFixed(0)}</p>
                     <Image src={koinPic} alt="koin" draggable={false} className="h-1/2 w-auto"/>
                 </div>
                 {/* Profile */}
@@ -91,17 +92,17 @@ function MainNav({ isLoggedIn, username }) {
                 :
 
                 <div className="flex justify-center items-center text-xl">
-                    <a href="signup" className="
+                    <Link href="signup" className="
                         text-[#181818] text-xl flex justify-center items-center 
                         bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 hover:translate-y-1 select-none
                         py-3 px-4 rounded-xl m-3 transition-all ease-in-out"
-                    >Zarejestruj się</a>
+                    >Zarejestruj się</Link>
                     
-                    <a href="login" className="
+                    <Link href="login" className="
                         text-[#181818] text-xl flex justify-center items-center 
                         bg-yellow-500 hover:cursor-pointer hover:bg-yellow-400 hover:translate-y-1 select-none
                         py-3 px-4 rounded-xl m-3 transition-all ease-in-out"
-                    >Zaloguj się</a>
+                    >Zaloguj się</Link>
                 </div>
                 }
                 

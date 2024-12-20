@@ -42,8 +42,7 @@ function SignUpPage() {
 
     return (
     <>
-    {!registerState ? 
-        <div className="flex justify-center items-center m-16">
+        <div className={`flex justify-center items-center m-16 ${registerState ? "hidden" : ""}`}>
             <form className="
                 w-[30vw] h-[66vh] bg-[#d3d3d3] dark:bg-[#29292a] text-[#303030] dark:text-[#f3f3f3]
                 rounded-lg flex flex-col justify-start p-4"
@@ -71,8 +70,8 @@ function SignUpPage() {
                 
             </form>
         </div>
-    :
-        <div className="flex justify-center items-center m-16">
+
+        <div className={`flex justify-center items-center m-16 ${registerState ? "" : "hidden"}`}>
             <form className="
                 w-[30vw] h-[66vh] bg-[#d3d3d3] dark:bg-[#29292a] text-[#303030] dark:text-[#f3f3f3]
                 rounded-lg flex flex-col justify-start p-4"
@@ -96,7 +95,6 @@ function SignUpPage() {
                 
             </form>
         </div>
-    }
     </>
     );
   }

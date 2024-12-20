@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from "express";
 import { logIn, register, getMessages, getServerSeed, getPublicSeed, checkUsernameAndEmail } from "./sql.mjs";
 import nodemailer from "nodemailer";
+import { getTrueBalance, rouletteBets } from './bets.mjs';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -53,10 +54,10 @@ const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
 
 
     //Zdefiniowanie routów związanych autoryzacji
-    app.get("/auth/checkLogIn", (req, res) => { //Odsyła czy użytkownik jest zalogowany oraz nazwę użytkownika
+    app.get("/auth/checkLogIn",async (req, res) => { //Odsyła czy użytkownik jest zalogowany oraz nazwę użytkownika
         res.json({
             isLoggedIn:(req.session.isLoggedIn == undefined ? false : req.session.isLoggedIn),
-            username:req.session.username
+            username:req.session.username,
         });
     });
 
@@ -107,7 +108,6 @@ const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
             return 0;
         }
         const registerId = await register(req.session.regEmail, req.session.regUsername, req.session.regPassword);
-        console.log(registerId);
         req.session.isLoggedIn = registerId != 0;
         req.session.userId = registerId;
         if(registerId != 0) req.session.username = req.session.regUsername;
@@ -115,9 +115,19 @@ const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
     });
 
     //Zdefiniowanie routów związanych z aplikacją
-    app.get("/app/chatHistory",async (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
+    app.get("/app/chatHistory", async (req, res) => { //Odsyła ostatnie 50 wiadomości z cztu
         res.json({messages:await getMessages()});
     });
+
+    app.get("/app/balance", async (req, res) => {
+        if(!req.session.userId){
+            res.json({balance:0});
+            return;
+        }
+        const balance = await getTrueBalance(req.session.userId);
+
+        res.json({balance: balance});
+    })
 
     return app;
 }

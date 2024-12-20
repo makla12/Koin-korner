@@ -74,12 +74,12 @@ function MainNav({ isLoggedIn, username, balance }) {
                         {name: "Wypłacanie", href: "/WIP"},
                         {name: "Dowód uczciwości", href: "/provablyFair"}
                     ].map((div, index) => (
-                        <div key={index} className="
+                        <Link href={div.href} key={index} className="
                             text-xl text-[#181818] dark:text-[#e6e6e6] text-center hover:text-[#505050] dark:hover:text-[#aaaaaa] hover:translate-y-1 hover:cursor-pointer
                             flex justify-center items-center h-full px-2.5 py-0.5 transition-all ease-in-out"
                         >
-                            <Link href={div.href} className="tracking-widest no-underline">{div.name}</Link>
-                        </div>
+                            <div className="tracking-widest">{div.name}</div>
+                        </Link>
                     ))
                 }
             

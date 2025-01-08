@@ -57,7 +57,7 @@ function MainNav({ isLoggedIn, username, balance }) {
                 { /* Coins */ }
                 <div className="
                     h-full px-2.5 py-0.5 
-                    flex justify-center items-center gap-5 
+                    flex justify-center items-center gap-5
                     text-[#f7f7f7] font-title"
                 >
                     <p className="h-1/2 text-5xl text-center flex justify-center items-center">{balance.toFixed(0)}</p>

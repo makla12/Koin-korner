@@ -56,6 +56,10 @@ function Dice() {
     setShowScore(number);
   }
 
+  function showAlert() {
+		setAlerts([...Alerts, {isPositive: true, message: "123213"}]);
+	}
+
     return (
     <>
       

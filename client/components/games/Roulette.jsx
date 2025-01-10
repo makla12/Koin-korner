@@ -78,13 +78,9 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 //Fectch
 		setRouletteSocket(io(window.location.hostname + ":8080/rouletteNS", {withCredentials: true}));
 
-// Crerate interval form timer
+// Crerate interval for timer
 		const timeInterval = setInterval(()=>{
-            if(timeLeft <= 0) 
-			{
-				timeLeft = 0;
-				return;
-			}
+            if(timeLeft.current <= 0) return;
 
 			timeLeft.current = timeLeft.current - 1;
 

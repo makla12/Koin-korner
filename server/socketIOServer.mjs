@@ -131,6 +131,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         socket.on("bet",async (choice, bet) => {
             if(!req.session.isLoggedIn) return;
             if(bet <= 0) return;
+            if(Date.now() - roulletteTimeStart < 4000) return;
             if(await getTrueBalance(req.session.userId) < bet) return;
 
             const betObj = {

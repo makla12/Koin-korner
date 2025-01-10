@@ -1,38 +1,45 @@
 import { useRef, useState, useEffect } from "react";
 import { LineChart, ResponsiveChartContainer, ChartsXAxis, ChartsYAxis, LinePlot} from "@mui/x-charts";
 
-function Crash() {
+function Crash(balance) {
 	const input1Ref = useRef(null);
 	const input2Ref = useRef(null);
+	const timeLeft = useRef(50);
+	const timerRef = useRef(null);
+	const crashTimer = useRef(0);
 
-	const [crashSocket, SetCrashSocket] = useState(null);
-	const [xAxis, setXAxis] = useState([0]);
-	const [multiplier, setMultiplier] = useState([1]);
-	const [change, setChange] = useState(false);
-	const [animPlay, setAnimPlay] = useState(false);
-	const [waitingTime, setWaitingTime] = useState(0.1);
+	const [crashSocket, setCrashSocket] = useState(null);
+	const [playTimer, setPlayTimer] = useState(false);
+	const [crashTime, setCrashTime] = useState(0);
+	const [isCrashed, setIsCrashed] = useState(false);
 	
-	function animation() {
-		setTimeout(timeout, 10);
+	
+	const xAxis = useRef([]);
+	const multiplier = useRef([]);
+
+	while(xAxis.current.length <= crashTime && !isCrashed){
+		xAxis.current.push(xAxis.current.length / 5);
+		multiplier.current.push(Math.pow(Math.E, 0.1 * multiplier.current.length / 5));
 	}
 
-	function timeout() {
-		if(!animPlay) {
-			return 0;
+	while(xAxis.current.length - 1 > crashTime && !isCrashed){
+		xAxis.current.splice(xAxis.length - 1, 1);
+		multiplier.current.splice(multiplier.length - 1, 1)
+	}
+
+	useEffect(()=>{
+		setTimeout(()=>{
+			setIsCrashed(true);
+		},3000);
+		const inter = setInterval(()=>{
+			crashTimer.current += 1;
+			setCrashTime(crashTimer.current);
+		},200);
+
+		return () => {
+			clearInterval(inter);
 		}
-		let newXAxis = Array.from(xAxis);
-		let newMult = Array.from(multiplier);
-		newXAxis.push(newXAxis[newXAxis.length - 1] + 0.01);
-		newMult.push(Math.pow(Math.E, newXAxis[newXAxis.length - 1] * 0.1));
-
-		setXAxis(newXAxis);
-		setMultiplier(newMult);
-		setChange(!change);
-	}
-	
-	useEffect(() => {
-		animation();
-	}, [change]);
+	},[])
 
 	function changeInput(action) {
 		if (input1Ref.current) {
@@ -73,51 +80,39 @@ function Crash() {
 
 
 	useEffect(() => {
-		if(animPlay){
-			return;
+		const timeInterval = setInterval(()=>{
+            if(timeLeft.current <= 0) return;
+
+			timeLeft.current = timeLeft.current - 1;
+
+			if(timerRef.current) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
+        },100);
+
+		return () => {
+			clearInterval(timeInterval);
 		}
-		setTimeout(() => {
-			if (waitingTime == 0) {
-				start();
-			}
-			setWaitingTime(waitingTime > 0 ? (waitingTime - 0.1).toFixed(1) : 0);
-		}, 100);
-	}, [waitingTime])
-
-	function start() {
-		setAnimPlay(true);
-		setChange(!change);
-	}
-
-	function crash() {
-		setAnimPlay(false);
-	}
+	}, [])
 
 	return (
     <>
-	{/* e^{0.0693x} */}
+	{/* e^{0.1x} */}
 	<div className="w-full h-full p-2">
 		<div className="w-full h-[45%] flex items-center bg-[#525864] rounded-lg my-2 relative">
-			{
-				animPlay ? 
-				<></>
-				:
-				<div className="w-[60%] h-full absolute top-0 left-0 bg-[#525864] z-10 flex justify-center items-center">
-					<p className="text-5xl select-none">{waitingTime}</p>
-				</div>
-			}
-			
-			<div className="w-[60%] h-full border-r-black border-r-2 relative">
-				<p className="z-5 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
-				text-5xl text-[#3baa60] select-none">x{(multiplier[multiplier.length - 1]).toFixed(2)}</p>
+			<div ref={timerRef} className={`w-[60%] h-full top-0 left-0 bg-[#525864] z-10 flex justify-center items-center text-5xl select-none ${(!playTimer ? "hidden" : "")}`}></div>
+
+			<div className={`w-[60%] h-full border-r-black border-r-2 relative ${(playTimer ? "hidden" : "")}`}>
+				<p className={`z-5 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
+					text-5xl ${!isCrashed ? "text-[#3baa60]" : "text-[#ef4444]"} select-none`}
+				>x{(multiplier.current[multiplier.current.length - 1]).toFixed(2)}</p>
+
 				<ResponsiveChartContainer 
-					xAxis={[{ data: xAxis}]}
+					xAxis={[{ data: xAxis.current}]}
 					yAxis={[{ min: 1 }]}
 					series={[
 						{
 							type:"line",
-							data: multiplier,
-							color: "#00bf62",
+							data: multiplier.current,
+							color: `${!isCrashed ? "#00bf62" : "#ef4444"}`,
 							area:true
 						},
 					]}

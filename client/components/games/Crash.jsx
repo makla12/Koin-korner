@@ -41,7 +41,6 @@ function Crash() {
 			switch (action) {
 				case "0":
 					input1Ref.current.value = 0;
-					showAlert()
 					break;
 				case "+10":
 					input1Ref.current.value = Number(input1Ref.current.value) + 10;
@@ -96,8 +95,8 @@ function Crash() {
 		setAnimPlay(false);
 	}
 
-	function showAlert() {
-		setAlertInfo([...AlertInfo, {isPositive: true, message: "123213"}]);
+	function showAlert(positive, mess) {
+		setAlertInfo([...AlertInfo, {isPositive: positive, message: mess}]);
 	}
 
 	return (

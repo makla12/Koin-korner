@@ -24,7 +24,7 @@ input[type='range']::-webkit-slider-thumb {
   background-color: white;
   cursor: pointer;
   border-radius: 1rem;
-  box-shadow: -100vw 0 0 100vw #ff0000;
+  box-shadow: -100vw 0 0 100vw #00bf63;
 }
 
 @keyframes alert {

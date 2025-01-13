@@ -4,6 +4,7 @@ import profilePic from '@/public/profile_pic.svg';
 import koinPic from '@/public/koin.svg';
 import { useState } from 'react';
 import axios from 'axios';
+import { Popup } from '@mui/base/Unstable_Popup/Popup';
 
 function MainNav({ isLoggedIn, username, balance }) {
     const [anchor, setAnchor] = useState(null);

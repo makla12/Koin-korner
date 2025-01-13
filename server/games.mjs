@@ -1,5 +1,4 @@
 import  crypto  from "crypto";
-import { getServerSeed, getPublicSeed } from "./sql.mjs";
 
 function generateHash(seed) {
 	return crypto
@@ -48,4 +47,8 @@ function crashPointToTime(crashPoint) {
 	return 10 * Math.log(crashPoint);
 }
 
-export { crashPointFromHash, rollFromSeed };
+function crashPointFromTime(crashTime) {
+	return Math.pow(Math.E, 0.1 * crashTime);
+}
+
+export { crashPointFromHash, crashPointToTime, crashPointFromTime, rollFromSeed };

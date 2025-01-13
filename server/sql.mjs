@@ -179,7 +179,7 @@ const getGameRound = async (gameType) => {
 	}
 }
 
-const saveRouletteRoll = async (round, score, serverSeedId, publicSeedId) => {
+const saveGameRound = async (round, score, serverSeedId, publicSeedId) => {
 	let conn;
 	try{
 		conn = await pool.getConnection();
@@ -203,4 +203,4 @@ const getLast10RouletteRolls = async () => {
 	}
 }
 
-export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls, getBalance, saveBet};
+export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveGameRound, getLast10RouletteRolls, getBalance, saveBet};

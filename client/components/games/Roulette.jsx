@@ -104,7 +104,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 			timeLeft.current = timerTime;
 		});
 
-		rouletteSocket.on("confirmBet", ()=>{
+		rouletteSocket.on("confirmBet", () => {
 			updateBalance();
 		});
 

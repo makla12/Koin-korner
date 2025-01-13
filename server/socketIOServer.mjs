@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
-import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls, saveBet, } from "./sql.mjs";
-import { rollFromSeed } from "./games.mjs";
-import { getTrueBalance, rouletteBets } from "./bets.mjs";
+import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveGameRound, getLast10RouletteRolls, saveBet, } from "./sql.mjs";
+import { rollFromSeed, crashPointFromHash, crashPointFromTime, crashPointToTime } from "./games.mjs";
+import { getTrueBalance, checkIfInBets, rouletteBets } from "./bets.mjs";
 
 const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const io = new Server(httpServer, {
@@ -47,7 +47,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const timeBetweenRols = 15000 + 3000 + 1000;
     let roulletteTimeStart = Date.now();
 
-    const clearBets = () => {
+    const clearRouletteBets = () => {
         rouletteBets.splice(0,rouletteBets.length);
     }
 
@@ -57,7 +57,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         const round = await getGameRound(1);
         
         const score = rollFromSeed(serverSeed, publicSeed, round.toString());
-        const gameId = await saveRouletteRoll(round, score, serverSeedId, publicSeedId);
+        const gameId = await saveGameRound(round, score, serverSeedId, publicSeedId);
         rouletteNS.emit("roll", score);
 
         rouletteBets.forEach((user)=>{
@@ -108,7 +108,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
         });
 
-        clearBets();
+        clearRouletteBets();
     }
 
     setInterval(()=>{
@@ -117,7 +117,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     }, timeBetweenRols);
 
     rouletteNS.on("connection", async (socket)=>{
-        console.log("connect");
+        console.log("connect to roulette");
         socket.emit("initialParams", roulletteTimeStart, rouletteBets, await getLast10RouletteRolls() );
         const req = socket.request;
         socket.use((__, next) => {
@@ -132,6 +132,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
             if(!req.session.isLoggedIn) return;
             if(bet <= 0) return;
             if(Date.now() - roulletteTimeStart < 4000) return;
+            if(checkIfInBets(rouletteBets, req.session.userId)) return;
             if(await getTrueBalance(req.session.userId) < bet) return;
 
             const betObj = {
@@ -144,6 +145,54 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
             rouletteNS.emit("addBet", betObj);
             socket.emit("confirmBet");
         });
+    });
+
+//Crash
+    const crashNS = io.of("/crashNS");
+    let crashTimeStart = Date.now();
+    let isCrashed = false;
+    let crashTime = Date.now();
+
+    const crash = () => {
+        crashTime = Date.now();
+        isCrashed = true;
+        crashNS.emit("crash");
+    }
+
+    const startCrash = async () => {
+        isCrashed = false;
+        crashTimeStart = Date.now();
+        const [serverSeedId, serverSeed] = await getServerSeed();
+        const [publicSeedId, publicSeed] = await getPublicSeed(1);
+        const round = await getGameRound(1);
+        
+        const crashScore = crashPointFromHash(serverSeed, publicSeed, round.toString() );
+        const crashScoreTime = crashPointToTime(crashScore) * 1000;
+        setTimeout(()=>{
+            crash();
+            saveGameRound(round, crashScore, serverSeedId, publicSeedId);
+            setTimeout(()=>{
+                startCrash();
+            },1000);
+        },5000 + crashScoreTime);
+    }
+
+    startCrash();
+
+    crashNS.on("connection", async (socket)=>{
+        console.log("connect to crash");
+        socket.emit("initialParams", crashTimeStart, isCrashed, crashTime);
+
+        const req = socket.request;
+        socket.use((__, next) => {
+            req.session.reload((err) => {
+                if (err) socket.disconnect();
+
+                else next();
+            });
+        });
+
+
     });
 }
 export default createSocketIOServer;

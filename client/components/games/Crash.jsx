@@ -1,5 +1,6 @@
+import { io } from "socket.io-client";
 import { useRef, useState, useEffect } from "react";
-import { LineChart, ResponsiveChartContainer, ChartsXAxis, ChartsYAxis, LinePlot} from "@mui/x-charts";
+import { ResponsiveChartContainer, ChartsXAxis, ChartsYAxis, LinePlot} from "@mui/x-charts";
 
 function Crash(balance) {
 	const input1Ref = useRef(null);
@@ -7,39 +8,39 @@ function Crash(balance) {
 	const timeLeft = useRef(50);
 	const timerRef = useRef(null);
 	const crashTimer = useRef(0);
+	const timerIsPlaying = useRef(true);
 
 	const [crashSocket, setCrashSocket] = useState(null);
-	const [playTimer, setPlayTimer] = useState(false);
 	const [crashTime, setCrashTime] = useState(0);
+	const [playTimer, setPlayTimer] = useState(true);
 	const [isCrashed, setIsCrashed] = useState(false);
-	
 	
 	const xAxis = useRef([]);
 	const multiplier = useRef([]);
+
+	const startCrash = (crashTime) => {
+		crashTimer.current = crashTime * 5;
+		timerIsPlaying.current = false;
+		xAxis.current = [];
+		multiplier.current = [];
+		setPlayTimer(false);
+	}
+
+	const startTimer = (time) => {
+		timeLeft.current = time * 10;
+		timerIsPlaying.current = true;
+		setPlayTimer(true);
+	}
+
+	if(xAxis.current.length > crashTime && !isCrashed){
+		xAxis.current = [];
+		multiplier.current = [];
+	}
 
 	while(xAxis.current.length <= crashTime && !isCrashed){
 		xAxis.current.push(xAxis.current.length / 5);
 		multiplier.current.push(Math.pow(Math.E, 0.1 * multiplier.current.length / 5));
 	}
-
-	while(xAxis.current.length - 1 > crashTime && !isCrashed){
-		xAxis.current.splice(xAxis.length - 1, 1);
-		multiplier.current.splice(multiplier.length - 1, 1)
-	}
-
-	useEffect(()=>{
-		setTimeout(()=>{
-			setIsCrashed(true);
-		},3000);
-		const inter = setInterval(()=>{
-			crashTimer.current += 1;
-			setCrashTime(crashTimer.current);
-		},200);
-
-		return () => {
-			clearInterval(inter);
-		}
-	},[])
 
 	function changeInput(action) {
 		if (input1Ref.current) {
@@ -73,25 +74,73 @@ function Crash(balance) {
 			}
 		}
 	}
-
+	
 	function betRound() {
 		input1Ref.current.value = Math.floor(Number(input1Ref.current.value));
 	}
-
-
+	
 	useEffect(() => {
+		setCrashSocket(io(window.location.hostname + ":8080/crashNS", {withCredentials: true}));
+//Crash animation
+		const inter = setInterval(()=>{
+			crashTimer.current += 1;
+			setCrashTime(crashTimer.current);
+		},200);
+
+//Timer
 		const timeInterval = setInterval(()=>{
-            if(timeLeft.current <= 0) return;
+			if(!timerIsPlaying.current) return;
+
+			if(timeLeft.current <= 0) {
+				crashTimer.current = 0;
+				if(timerRef.current) timerRef.current.innerHTML = "0.0";
+				setPlayTimer(false);
+				timerIsPlaying.current = false;
+				return;
+			}
 
 			timeLeft.current = timeLeft.current - 1;
 
 			if(timerRef.current) timerRef.current.innerHTML = `${(timeLeft.current/10).toFixed(1)}`;
-        },100);
+		},100);
 
 		return () => {
+			clearInterval(inter);
 			clearInterval(timeInterval);
 		}
 	}, [])
+
+	useEffect(() => {
+		if(!crashSocket) return;
+
+		crashSocket.on("initialParams", (crashTimeStart, isCrashed, timeCrashed) => {
+			const timeFromStart = (Date.now() - crashTimeStart) / 1000;
+			
+			if(timeFromStart < 5) startTimer(5 - timeFromStart); 
+
+			else startCrash(timeFromStart - 5);
+
+			setIsCrashed(false);
+
+			if(isCrashed){
+				setIsCrashed(true);
+				console.log(timeCrashed - crashTimeStart);
+				console.log(timeFromStart);
+				while(xAxis.current.length <= (timeCrashed - crashTimeStart - 5000) / 200){
+					xAxis.current.push(xAxis.current.length / 5);
+					multiplier.current.push(Math.pow(Math.E, 0.1 * multiplier.current.length / 5));
+				}
+			}
+		});
+
+		crashSocket.on("crash", () => {
+			setIsCrashed(true);
+			setTimeout(()=>{
+				setIsCrashed(false);
+				startTimer(5);
+			},1000);
+		});
+	},[crashSocket]);
 
 	return (
     <>

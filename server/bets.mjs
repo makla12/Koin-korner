@@ -2,6 +2,7 @@ import { getBalance } from "./sql.mjs";
 
 // let rouletteBets = [ { userId:0, name:"rudy", bet:1000, choice:"Red" } ];
 let rouletteBets = [];
+let crashBets = [];
 
 const getBetSum = (arr) => {
     let sum = 0;
@@ -12,11 +13,15 @@ const getBetSum = (arr) => {
     return sum;
 }
 
-const getTrueBalance = async (userId) => {
-        const rouletteBetsSum = getBetSum(rouletteBets.filter((value)=>value.userId == userId));
-        const balance = (await getBalance(userId)) - rouletteBetsSum;
-
-        return balance;
+const checkIfInBets = (bets, userId) => {
+    return bets.filter(user => user.userId == userId).length != 0;
 }
 
-export { getTrueBalance, rouletteBets };
+const getTrueBalance = async (userId) => {
+    const rouletteBetsSum = getBetSum(rouletteBets.filter((value)=>value.userId == userId));
+    const balance = (await getBalance(userId)) - rouletteBetsSum;
+
+    return balance;
+}
+
+export { getTrueBalance,checkIfInBets , rouletteBets };

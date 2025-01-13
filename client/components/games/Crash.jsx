@@ -151,7 +151,7 @@ function Crash(balance) {
 			<div className={`w-[60%] h-full border-r-black border-r-2 relative ${(playTimer ? "hidden" : "")}`}>
 				<p className={`z-5 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
 					text-5xl ${!isCrashed ? "text-[#3baa60]" : "text-[#ef4444]"} select-none`}
-				>x{(multiplier.current.length != 0 ? (multiplier.current[multiplier.current.length - 1]).toFixed(2) : "1.0")}</p>
+				>x{(multiplier.current.length != 0 ? (multiplier.current[multiplier.current.length - 1]).toFixed(2) : "1.00")}</p>
 
 				<ResponsiveChartContainer 
 					xAxis={[{ data: xAxis.current}]}

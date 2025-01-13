@@ -21,9 +21,9 @@ function Crash(balance) {
 	const startCrash = (crashTime) => {
 		crashTimer.current = crashTime * 5;
 		timerIsPlaying.current = false;
+		setPlayTimer(false);
 		xAxis.current = [];
 		multiplier.current = [];
-		setPlayTimer(false);
 	}
 
 	const startTimer = (time) => {
@@ -83,6 +83,8 @@ function Crash(balance) {
 		setCrashSocket(io(window.location.hostname + ":8080/crashNS", {withCredentials: true}));
 //Crash animation
 		const inter = setInterval(()=>{
+			if(timerIsPlaying.current) return;
+
 			crashTimer.current += 1;
 			setCrashTime(crashTimer.current);
 		},200);
@@ -94,8 +96,7 @@ function Crash(balance) {
 			if(timeLeft.current <= 0) {
 				crashTimer.current = 0;
 				if(timerRef.current) timerRef.current.innerHTML = "0.0";
-				setPlayTimer(false);
-				timerIsPlaying.current = false;
+				startCrash(0);
 				return;
 			}
 

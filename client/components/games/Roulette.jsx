@@ -10,7 +10,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	const inputRef = useRef(null);
 	const timeLeft = useRef(0);
 	const timerRef = useRef(null);
-	
+
 	const [rouletteSocket, setRouletteSocket] = useState(null);
 	const [playTimer, setPlayTimer] = useState(false);
 	const [rollHistory, setRollHistory] = useState([]);
@@ -615,7 +615,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 		</div>
 	</div>
 	</>
-  	)
+	);
 }
 
 export {Roulette};

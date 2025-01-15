@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveGameRound, getLast10RouletteRolls, saveBet, } from "./sql.mjs";
 import { rollFromSeed, crashPointFromHash, crashPointFromTime, crashPointToTime } from "./games.mjs";
-import { getTrueBalance, checkIfInBets, rouletteBets } from "./bets.mjs";
+import { getTrueBalance, checkIfInBets, rouletteBets, crashBets } from "./bets.mjs";
 
 const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const io = new Server(httpServer, {
@@ -140,6 +140,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
                 name: req.session.username,
                 bet: Number(bet),
                 choice: choice,
+                active: true,
             }
             rouletteBets.push(betObj);
             rouletteNS.emit("addBet", betObj);
@@ -192,6 +193,25 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
             });
         });
 
+        socket.on("bet",async (choice, bet) => {
+            if(!req.session.isLoggedIn) return;
+            if(bet <= 0) return;
+            if(Date.now() - crashTimeStart > 5000) return;
+            if(checkIfInBets(rouletteBets, req.session.userId)) return;
+            if(await getTrueBalance(req.session.userId) < bet) return;
+
+            const betObj = {
+                userId: req.session.userId,
+                name: req.session.username,
+                bet: Number(bet),
+                auto:0,
+                cashOutMult:0,
+            }
+
+            crashBets.push(betObj);
+            crashNS.emit("addBet", betObj);
+            socket.emit("confirmBet");
+        });
 
     });
 }

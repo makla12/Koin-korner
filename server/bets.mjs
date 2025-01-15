@@ -1,13 +1,15 @@
 import { getBalance } from "./sql.mjs";
 
-// let rouletteBets = [ { userId:0, name:"rudy", bet:1000, choice:"Red" } ];
+// let rouletteBets = [ { userId:0, name:"rudy", bet:1000, choice:"Red", active:true } ];
 let rouletteBets = [];
-let crashBets = [];
+
+let crashBets = [ { userId:0, name:"rudy", bet:1000, auto:0, active:true, cashOutMult:0 } ];
+// let crashBets = [];
 
 const getBetSum = (arr) => {
     let sum = 0;
     arr.forEach((value)=>{
-        sum += value.bet;
+        if(value.active) sum += value.bet;
     });
 
     return sum;
@@ -18,10 +20,11 @@ const checkIfInBets = (bets, userId) => {
 }
 
 const getTrueBalance = async (userId) => {
-    const rouletteBetsSum = getBetSum(rouletteBets.filter((value)=>value.userId == userId));
-    const balance = (await getBalance(userId)) - rouletteBetsSum;
+    const rouletteBetsSum = getBetSum(rouletteBets.filter( value => value.userId == userId));
+    const crashBetsSum = getBetSum(crashBets.filter(value => value.userId == userId));
+    const balance = (await getBalance(userId)) - rouletteBetsSum - crashBetsSum;
 
     return balance;
 }
 
-export { getTrueBalance,checkIfInBets , rouletteBets };
+export { getTrueBalance,checkIfInBets , rouletteBets, crashBets };

@@ -1,8 +1,10 @@
 import { io } from "socket.io-client";
 import { useRef, useState, useEffect } from "react";
 import { ResponsiveChartContainer, ChartsXAxis, ChartsYAxis, LinePlot} from "@mui/x-charts";
+import { CrashBet } from "../elements/CrashBet";
 
-function Crash(balance) {
+function Crash({ isLogedIn, username, updateBalance, balance }) {
+	const animationQuality = 8;
 	const input1Ref = useRef(null);
 	const input2Ref = useRef(null);
 	const timeLeft = useRef(50);
@@ -14,16 +16,27 @@ function Crash(balance) {
 	const [crashTime, setCrashTime] = useState(0);
 	const [playTimer, setPlayTimer] = useState(true);
 	const [isCrashed, setIsCrashed] = useState(false);
+	const [xAxisView, SetXAxisView] = useState([]);
+	const [multiplierView, SetMultiplierView] = useState([]);
+	const [allBets, setAllBets] = useState([]);
+
+	const betsSorted = allBets.sort((a,b) => (a.bet < b.bet ? 1 : (a.bet > b.bet ? -1 : 0)));
+	const selfBets = allBets.filter((item) => item.name == username);
+	const selfBet1 = selfBets.filter(value => value.betNum == 0);
+	const selfBet2 = selfBets.filter(value => value.betNum == 1);
 	
 	const xAxis = useRef([]);
 	const multiplier = useRef([]);
 
 	const startCrash = (crashTime) => {
-		crashTimer.current = crashTime * 5;
+		crashTimer.current = crashTime * animationQuality;
 		timerIsPlaying.current = false;
 		setPlayTimer(false);
 		xAxis.current = [];
 		multiplier.current = [];
+		setCrashTime(crashTimer.current);
+		SetXAxisView(xAxis.current);
+		SetMultiplierView(multiplier.current);
 	}
 
 	const startTimer = (time) => {
@@ -38,8 +51,8 @@ function Crash(balance) {
 	}
 
 	while(xAxis.current.length <= crashTime && !isCrashed){
-		xAxis.current.push(xAxis.current.length / 5);
-		multiplier.current.push(Math.pow(Math.E, 0.1 * multiplier.current.length / 5));
+		xAxis.current.push(xAxis.current.length / animationQuality);
+		multiplier.current.push(Math.pow(Math.E, 0.1 * multiplier.current.length / animationQuality));
 	}
 
 	function changeInput(action) {
@@ -87,7 +100,9 @@ function Crash(balance) {
 
 			crashTimer.current += 1;
 			setCrashTime(crashTimer.current);
-		},200);
+			SetXAxisView(xAxis.current);
+			SetMultiplierView(multiplier.current);
+		},1000 / animationQuality);
 
 //Timer
 		const timeInterval = setInterval(()=>{
@@ -129,6 +144,11 @@ function Crash(balance) {
 					xAxis.current.push(xAxis.current.length / 5);
 					multiplier.current.push(Math.pow(Math.E, 0.1 * multiplier.current.length / 5));
 				}
+
+				setTimeout(()=>{
+					setIsCrashed(false);
+					startTimer(5);
+				},1000);
 			}
 		});
 
@@ -145,6 +165,7 @@ function Crash(balance) {
     <>
 	{/* e^{0.1x} */}
 	<div className="w-full h-full p-2">
+{/* Crash and inputs */}
 		<div className="w-full h-[45%] flex items-center bg-[#525864] rounded-lg my-2 relative">
 			<div ref={timerRef} className={`w-[60%] h-full top-0 left-0 bg-[#525864] z-10 flex justify-center items-center text-5xl select-none ${(!playTimer ? "hidden" : "")}`}></div>
 
@@ -154,12 +175,12 @@ function Crash(balance) {
 				>x{(multiplier.current.length != 0 ? (multiplier.current[multiplier.current.length - 1]).toFixed(2) : "1.00")}</p>
 
 				<ResponsiveChartContainer 
-					xAxis={[{ data: xAxis.current}]}
+					xAxis={[{ data: xAxisView}]}
 					yAxis={[{ min: 1 }]}
 					series={[
 						{
 							type:"line",
-							data: multiplier.current,
+							data: multiplierView,
 							color: `${!isCrashed ? "#00bf62" : "#ef4444"}`,
 							area:true
 						},
@@ -218,15 +239,15 @@ function Crash(balance) {
 
 				<div className="flex flex-col justify-center items-center">
 					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none">
-						ZAKŁAD 1
+						{selfBet1.length != 0 && multiplierView.length != 0 && !isCrashed ? selfBet1.bet * multiplierView[multiplierView.length - 1] : "ZAKAŁD 1"}
 					</button>
 					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none">
-						ZAKŁAD 2
+						{selfBet2.length != 0 && multiplierView.length != 0 && !isCrashed ? selfBet2.bet * multiplierView[multiplierView.length - 1] : "ZAKAŁD 1"}
 					</button>
 				</div>
 			</div>
 		</div>
-
+{/* Bets history */}
 		<div className="w-full h-[10%] flex justify-around items-center bg-[#525864] rounded-lg my-2">
 			{ 
 				[
@@ -251,6 +272,7 @@ function Crash(balance) {
 			}
 		</div>
 
+{/* Bets */}
 		<div className="w-full h-2/5 bg-[#525864] rounded-lg">
 			<div className="border-b-2 border-black w-full h-[10%] flex justify-around items-center">
 				<p className="w-1/2 text-center">GRACZ</p>
@@ -258,20 +280,11 @@ function Crash(balance) {
 				<p className="w-[15%] text-center">ZAKŁAD</p>
 				<p className="w-[15%] text-center">ZYSK</p>
 			</div>
-				
-			<div className="w-full flex justify-around items-center my-[0.5%]">
-				<p className="w-1/2 text-center">Rudy</p>
-				<p className="w-[15%] text-center">x2.45</p>
-				<p className="w-[15%] text-center">100</p>
-				<p className="w-[15%] text-center">245</p>
-			</div>
-
-			<div className="w-full flex justify-around items-center my-[0.5%]">
-				<p className="w-1/2 text-center">Hazardzista123</p>
-				<p className="w-[15%] text-center">x8.12</p>
-				<p className="w-[15%] text-center">200</p>
-				<p className="w-[15%] text-center">1624</p>
-			</div>
+			
+			<CrashBet name={"Rudy"} bet={100} cashOut={0} />
+			<CrashBet name={"Rudy1"} bet={200} cashOut={4} />
+			<CrashBet name={"Rudy2"} bet={300} cashOut={0} />
+			<CrashBet name={"Rudy3"} bet={400} cashOut={2} />
 		</div>
 	</div>
     </>

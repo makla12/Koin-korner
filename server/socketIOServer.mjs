@@ -169,6 +169,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         
         const crashScore = crashPointFromHash(serverSeed, publicSeed, round.toString() );
         const crashScoreTime = crashPointToTime(crashScore) * 1000;
+        console.log(crashScore);
         setTimeout(()=>{
             crash();
             saveGameRound(round, crashScore, serverSeedId, publicSeedId);
@@ -182,7 +183,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
     crashNS.on("connection", async (socket)=>{
         console.log("connect to crash");
-        socket.emit("initialParams", crashTimeStart, isCrashed, crashTime);
+        socket.emit("initialParams", crashTimeStart, isCrashed, crashTime, crashBets);
 
         const req = socket.request;
         socket.use((__, next) => {
@@ -193,11 +194,11 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
             });
         });
 
-        socket.on("bet",async (choice, bet) => {
+        socket.on("bet",async (betNum, bet) => {
             if(!req.session.isLoggedIn) return;
             if(bet <= 0) return;
             if(Date.now() - crashTimeStart > 5000) return;
-            if(checkIfInBets(rouletteBets, req.session.userId)) return;
+            if(checkIfInBets(crashBets, req.session.userId, value => value.betNum == betNum )) return;
             if(await getTrueBalance(req.session.userId) < bet) return;
 
             const betObj = {
@@ -206,11 +207,22 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
                 bet: Number(bet),
                 auto:0,
                 cashOutMult:0,
+                betNum:betNum,
             }
 
             crashBets.push(betObj);
             crashNS.emit("addBet", betObj);
             socket.emit("confirmBet");
+        });
+
+        socket.on("cashOutBet", async (betNum) => {
+            if(!req.session.isLoggedIn) return;
+            if(isCrashed) return;
+            if(Date.now() - crashTimeStart < 5000) return;
+            if(!checkIfInBets(crashBets, req.session.userId, value => value.betNum == betNum && value.active )) return;
+
+            const betIndex = crashBets.findIndex( value => value.userId == req.session.userId && value.betNum == betNum);
+            crashBets[betIndex].active = false;
         });
 
     });

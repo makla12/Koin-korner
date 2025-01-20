@@ -20,7 +20,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	const [xAxisView, SetXAxisView] = useState([]);
 	const [multiplierView, SetMultiplierView] = useState([]);
 	const [allBets, setAllBets] = useState([]);
-  const [AlertInfo, setAlertInfo] = useState([]);
+	const [AlertInfo, setAlertInfo] = useState([]);
 
 	const betsSorted = allBets.sort((a,b) => (a.bet < b.bet ? 1 : (a.bet > b.bet ? -1 : 0)));
 	const selfBets = allBets.filter((item) => item.name == username);
@@ -216,11 +216,12 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 
 	return (
     <>
-		{
-			AlertInfo.map((obj, index) => (
-				<Alert key={index} isPositive={obj.isPositive} message={obj.message}/>
-			))
-		}
+	{
+		AlertInfo.map((obj, index) => (
+			<Alert key={index} isPositive={obj.isPositive} message={obj.message}/>
+		))
+	}
+
 	<div className="w-full h-full p-2">
 {/* Crash and inputs */}
 		<div className="w-full h-[45%] flex items-center bg-[#525864] rounded-lg my-2 relative">

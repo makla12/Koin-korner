@@ -6,7 +6,7 @@ function CrashBet({name, cashOut, bet}){
             <p className="w-1/2 text-center">{name}</p>
             <p className="w-[15%] text-center">{cashOut != 0 ? cashOut.toFixed(2) : "-"}</p>
             <p className="w-[15%] text-center">{bet}</p>
-            <p className="w-[15%] text-center">{cashOut != 0 ? bet * cashOut : "-"}</p>
+            <p className="w-[15%] text-center">{cashOut != 0 ? (bet * cashOut).toFixed(0) : "-"}</p>
         </div>
     </>
     );

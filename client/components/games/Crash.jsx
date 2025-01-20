@@ -55,6 +55,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	}
 
 	const startTimer = (time) => {
+		SetMultiplierView([]);
 		timeLeft.current = time * 10;
 		timerIsPlaying.current = true;
 		setPlayTimer(true);
@@ -162,9 +163,11 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 				}
 
 				setTimeout(()=>{
+					SetMultiplierView([]);
+					setAllBets([]);
 					setIsCrashed(false);
 					startTimer(5);
-				},1000);
+				},2000 - (Date.now() - timeCrashed) );
 			}
 		});
 		
@@ -315,7 +318,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 
 							bet(1);
 						}}
-						>{bet2Active ? selfBet2[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1) : "ZAKAŁD 2"}
+						>{bet2Active ? `WYPŁAĆ: ${(selfBet2[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1)).toFixed(0)}` : "ZAKAŁD 2"}
 					</button>
 				</div>
 			</div>

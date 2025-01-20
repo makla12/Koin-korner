@@ -13,10 +13,12 @@ function DefaultPage() {
         setIsLoggedIn(res.data.isLoggedIn);
         setUsername(res.data.username);
     }
+
     const getBalance = async () => {
         const res = await axios.get("http://" + window.location.hostname + ":8080/app/balance",{withCredentials:true})
         setBalance(Number(res.data.balance));
     }
+
     useEffect(()=>{
         fetchLogin();
         getBalance();

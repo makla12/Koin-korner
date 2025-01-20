@@ -153,12 +153,14 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     let crashTimeStart = Date.now();
     let isCrashed = false;
     let crashTime = Date.now();
+    let crashGameId = 0;
 
     const crash = () => {
         crashTime = Date.now();
         isCrashed = true;
         for(let i = 0; i < crashBets.length; i++){
-            console.log("betSaved");
+            const bet = crashBets[i];
+            saveBet(bet.userId, crashGameId, bet.bet, 0);
         }
         crashNS.emit("crash");
     }
@@ -173,10 +175,11 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         
         const crashScore = crashPointFromHash(serverSeed, publicSeed, round.toString() );
         const crashScoreTime = crashPointToTime(crashScore) * 1000;
-        console.log(crashScore);
+        crashGameId = await saveGameRound(round, crashScore, serverSeedId, publicSeedId);
+        console.log(crashScore, crashGameId);
+
         setTimeout(()=>{
             crash();
-            saveGameRound(round, crashScore, serverSeedId, publicSeedId);
             setTimeout(()=>{
                 startCrash();
             },2000);
@@ -228,8 +231,12 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
             const betIndex = crashBets.findIndex( value => value.userId == req.session.userId && value.betNum == betNum);
             crashBets[betIndex].active = false;
+            crashBets[betIndex].cashOutMult = crashPointFromTime((Date.now() - crashTimeStart - 5000) / 1000);
+            const bet = crashBets[betIndex];
+            saveBet(bet.userId, crashGameId, bet.bet, bet.cashOutMult);
 
-            crashNS.emit("updateBet", betIndex, crashBets[betIndex]);
+            crashNS.emit("updateBet", betIndex, bet);
+            socket.emit("confirmBet");
         });
 
     });

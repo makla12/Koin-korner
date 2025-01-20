@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
-import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls, saveBet, } from "./sql.mjs";
-import { rollFromSeed } from "./games.mjs";
-import { getTrueBalance, rouletteBets } from "./bets.mjs";
+import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveGameRound, getLast10RouletteRolls, saveBet, } from "./sql.mjs";
+import { rollFromSeed, crashPointFromHash, crashPointFromTime, crashPointToTime } from "./games.mjs";
+import { getTrueBalance, checkIfInBets, rouletteBets, crashBets } from "./bets.mjs";
 
 const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const io = new Server(httpServer, {
@@ -47,7 +47,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const timeBetweenRols = 15000 + 3000 + 1000;
     let roulletteTimeStart = Date.now();
 
-    const clearBets = () => {
+    const clearRouletteBets = () => {
         rouletteBets.splice(0,rouletteBets.length);
     }
 
@@ -57,7 +57,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         const round = await getGameRound(1);
         
         const score = rollFromSeed(serverSeed, publicSeed, round.toString());
-        const gameId = await saveRouletteRoll(round, score, serverSeedId, publicSeedId);
+        const gameId = await saveGameRound(round, score, serverSeedId, publicSeedId);
         rouletteNS.emit("roll", score);
 
         rouletteBets.forEach((user)=>{
@@ -108,7 +108,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
         });
 
-        clearBets();
+        clearRouletteBets();
     }
 
     setInterval(()=>{
@@ -117,7 +117,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     }, timeBetweenRols);
 
     rouletteNS.on("connection", async (socket)=>{
-        console.log("connect");
+        console.log("connect to roulette");
         socket.emit("initialParams", roulletteTimeStart, rouletteBets, await getLast10RouletteRolls() );
         const req = socket.request;
         socket.use((__, next) => {
@@ -131,6 +131,8 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         socket.on("bet",async (choice, bet) => {
             if(!req.session.isLoggedIn) return;
             if(bet <= 0) return;
+            if(Date.now() - roulletteTimeStart < 4000) return;
+            if(checkIfInBets(rouletteBets, req.session.userId)) return;
             if(await getTrueBalance(req.session.userId) < bet) return;
 
             const betObj = {
@@ -138,11 +140,98 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
                 name: req.session.username,
                 bet: Number(bet),
                 choice: choice,
+                active: true,
             }
             rouletteBets.push(betObj);
             rouletteNS.emit("addBet", betObj);
             socket.emit("confirmBet");
         });
+    });
+
+//Crash
+    const crashNS = io.of("/crashNS");
+    let crashTimeStart = Date.now();
+    let isCrashed = false;
+    let crashTime = Date.now();
+
+    const crash = () => {
+        crashTime = Date.now();
+        isCrashed = true;
+        for(let i = 0; i < crashBets.length; i++){
+            console.log("betSaved");
+        }
+        crashNS.emit("crash");
+    }
+
+    const startCrash = async () => {
+        crashBets.splice(0,crashBets.length);
+        isCrashed = false;
+        crashTimeStart = Date.now();
+        const [serverSeedId, serverSeed] = await getServerSeed();
+        const [publicSeedId, publicSeed] = await getPublicSeed(1);
+        const round = await getGameRound(1);
+        
+        const crashScore = crashPointFromHash(serverSeed, publicSeed, round.toString() );
+        const crashScoreTime = crashPointToTime(crashScore) * 1000;
+        console.log(crashScore);
+        setTimeout(()=>{
+            crash();
+            saveGameRound(round, crashScore, serverSeedId, publicSeedId);
+            setTimeout(()=>{
+                startCrash();
+            },2000);
+        },5000 + crashScoreTime);
+    }
+
+    startCrash();
+
+    crashNS.on("connection", async (socket)=>{
+        console.log("connect to crash");
+        socket.emit("initialParams", crashTimeStart, isCrashed, crashTime, crashBets);
+
+        const req = socket.request;
+        socket.use((__, next) => {
+            req.session.reload((err) => {
+                if (err) socket.disconnect();
+
+                else next();
+            });
+        });
+
+        socket.on("bet",async (betNum, bet) => {
+            if(!req.session.isLoggedIn) return;
+            if(bet <= 0) return;
+            if(Date.now() - crashTimeStart > 5000) return;
+            if(checkIfInBets(crashBets, req.session.userId, value => value.betNum == betNum )) return;
+            if(await getTrueBalance(req.session.userId) < bet) return;
+
+            const betObj = {
+                userId: req.session.userId,
+                name: req.session.username,
+                bet: Number(bet),
+                auto:0,
+                active:true,
+                cashOutMult:0,
+                betNum:betNum,
+            }
+
+            crashBets.push(betObj);
+            crashNS.emit("addBet", betObj);
+            socket.emit("confirmBet");
+        });
+
+        socket.on("cashOutBet", async (betNum) => {
+            if(!req.session.isLoggedIn) return;
+            if(isCrashed) return;
+            if(Date.now() - crashTimeStart < 5000) return;
+            if(!checkIfInBets(crashBets, req.session.userId, value => value.betNum == betNum && value.active )) return;
+
+            const betIndex = crashBets.findIndex( value => value.userId == req.session.userId && value.betNum == betNum);
+            crashBets[betIndex].active = false;
+
+            crashNS.emit("updateBet", betIndex, crashBets[betIndex]);
+        });
+
     });
 }
 export default createSocketIOServer;

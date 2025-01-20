@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { ChatMessage } from "./ChatMessage";
 import axios from "axios";
@@ -6,6 +6,7 @@ import axios from "axios";
 function Chat() {
     const [messages,setMessages] = useState(null);
     const [chatSocket, setChatSocket] = useState(null);
+    const messagesEndRef = useRef(null);
 
     //Get chat data and connect socket
     useEffect(()=>{
@@ -29,10 +30,15 @@ function Chat() {
             setMessages(newMessages);
         });
 
+        scrollToBottom();
         return ()=>{
             chatSocket.off("message");
         }
     },[messages])
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth'});
+    }
 
     return (
         <div id="chatDiv" className="
@@ -48,6 +54,8 @@ function Chat() {
                 messages.map((value, index)=>(
                     <ChatMessage key={index} {...value} />
                 ))}
+
+                <div ref={messagesEndRef}></div>
             </div>
             
             {/* Sending message input */}

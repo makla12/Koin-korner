@@ -22,7 +22,7 @@ function MainNav({ isLoggedIn, username, balance }) {
             w-full h-28 bg-[#27272a]"
         >
             {/* First half of nav */}
-            <div className="flex justify-center items-center select-none">
+            <div className="flex justify-center items-center select-none"> 
 
                 {/* Title */}
                 <Link href="/" id="title" className="

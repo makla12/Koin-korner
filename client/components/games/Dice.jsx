@@ -3,14 +3,14 @@ import { Alert } from "@/components/elements/Alert";
 
 function Dice() {
   const [multiplier, setMultiplier] = useState(1.98);
-  const [chance, setChance] = useState("50%");
+  const [chance, setChance] = useState(50);
   const [profit, setProfit] = useState(1.98);
   const [showScore, setShowScore] = useState();
   const inputRef = useRef(null);
   const [AlertInfo, setAlertInfo] = useState([]);
 
   function update(e) {
-    setChance(e.target.value + "%");
+    setChance(Number(e.target.value));
     setMultiplier((49.5  / (e.target.value/2)).toFixed(3));
     setProfit((Number(49.5  / (e.target.value/2)) * Number(inputRef.current.value)).toFixed(3));
   }
@@ -55,6 +55,11 @@ function Dice() {
   function roll() {
     const number = (Math.random() * 100).toFixed(2);
     setShowScore(number);
+    if (number > chance) {
+      showAlert(false, "Przegrałeś");
+    } else {
+      showAlert(true, "Wygrałeś");
+    }
   }
 
   function showAlert(positive, mess) {
@@ -78,7 +83,7 @@ function Dice() {
               {
                 [
                   {text: "MNOŻNIK:", value: multiplier},
-                  {text: "SZANSA:", value: chance},
+                  {text: "SZANSA:", value: `${chance}%`},
                   {text: "ZYSK PRZY WYGRANEJ:", value: profit}
                 ].map((div, key) => (
                   <div key={key} className="w-1/3 p-1 flex flex-col justify-center items-center select-none">
@@ -142,7 +147,7 @@ function Dice() {
 
           <div className="w-full h-[12.5%] flex justify-center items-center">
             <button className="w-1/2 h-full bg-[#00bf63] text-lg p-4 rounded-full hover:bg-[#56ca72] select-none flex justify-center items-center"  onClick={roll}>
-              WYPŁAĆ
+              ZAGRAĆ
             </button>
           </div>
         </div>

@@ -157,10 +157,14 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     const crash = () => {
         crashTime = Date.now();
         isCrashed = true;
+        for(let i = 0; i < crashBets.length; i++){
+            console.log("betSaved");
+        }
         crashNS.emit("crash");
     }
 
     const startCrash = async () => {
+        crashBets.splice(0,crashBets.length);
         isCrashed = false;
         crashTimeStart = Date.now();
         const [serverSeedId, serverSeed] = await getServerSeed();
@@ -175,7 +179,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
             saveGameRound(round, crashScore, serverSeedId, publicSeedId);
             setTimeout(()=>{
                 startCrash();
-            },1000);
+            },2000);
         },5000 + crashScoreTime);
     }
 
@@ -206,6 +210,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
                 name: req.session.username,
                 bet: Number(bet),
                 auto:0,
+                active:true,
                 cashOutMult:0,
                 betNum:betNum,
             }
@@ -223,6 +228,8 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
 
             const betIndex = crashBets.findIndex( value => value.userId == req.session.userId && value.betNum == betNum);
             crashBets[betIndex].active = false;
+
+            crashNS.emit("updateBet", betIndex, crashBets[betIndex]);
         });
 
     });

@@ -24,9 +24,22 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	const selfBets = allBets.filter((item) => item.name == username);
 	const selfBet1 = selfBets.filter(value => value.betNum == 0);
 	const selfBet2 = selfBets.filter(value => value.betNum == 1);
+
+	const bet1Active = selfBet1.length != 0  && !isCrashed && selfBet1[0].active;
+	const bet2Active = selfBet2.length != 0 && !isCrashed && selfBet2[0].active;
 	
 	const xAxis = useRef([]);
 	const multiplier = useRef([]);
+
+	const bet = (betNum) => {
+		if(!input1Ref.current) return;
+
+		crashSocket.emit("bet", betNum, Number(input1Ref.current.value));
+	}
+
+	const cashOutBet = (betNum) => {
+		crashSocket.emit("cashOutBet", betNum);
+	}
 
 	const startCrash = (crashTime) => {
 		crashTimer.current = crashTime * animationQuality;
@@ -129,7 +142,8 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	useEffect(() => {
 		if(!crashSocket) return;
 
-		crashSocket.on("initialParams", (crashTimeStart, isCrashed, timeCrashed) => {
+		crashSocket.on("initialParams", (crashTimeStart, isCrashed, timeCrashed, crashBets) => {
+			setAllBets(crashBets);
 			const timeFromStart = (Date.now() - crashTimeStart) / 1000;
 			
 			if(timeFromStart < 5) startTimer(5 - timeFromStart); 
@@ -151,19 +165,51 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 				},1000);
 			}
 		});
+		
+		crashSocket.on("confirmBet", () => {
+			updateBalance();
+		});
 
 		crashSocket.on("crash", () => {
 			setIsCrashed(true);
 			setTimeout(()=>{
+				SetMultiplierView([]);
+				setAllBets([]);
 				setIsCrashed(false);
 				startTimer(5);
-			},1000);
+			},2000);
 		});
+
+		return ()=>{
+			crashSocket.off("initialParams");
+			crashSocket.off("crash");
+			crashSocket.off("confirmBet");
+		}
 	},[crashSocket]);
+
+	useEffect(()=>{
+		if(!crashSocket) return;
+
+		crashSocket.on("addBet",(betObj) => {
+			let arr = Array.from(allBets);
+			arr.push(betObj);
+			setAllBets(arr);
+		});
+
+		crashSocket.on("updateBet", (betIndex, betObj) => {
+			let arr = Array.from(allBets);
+			arr[betIndex] = betObj;
+			setAllBets(arr);
+		});
+
+		return ()=>{
+			crashSocket.off("addBet");
+			crashSocket.off("updateBet");
+		}
+	},[crashSocket, allBets])
 
 	return (
     <>
-	{/* e^{0.1x} */}
 	<div className="w-full h-full p-2">
 {/* Crash and inputs */}
 		<div className="w-full h-[45%] flex items-center bg-[#525864] rounded-lg my-2 relative">
@@ -238,11 +284,27 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 				</div>
 
 				<div className="flex flex-col justify-center items-center">
-					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none">
-						{selfBet1.length != 0 && multiplierView.length != 0 && !isCrashed ? selfBet1.bet * multiplierView[multiplierView.length - 1] : "ZAKAŁD 1"}
+					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none"
+						onClick={()=>{
+							if(bet1Active){
+								cashOutBet(0);
+								return;
+							}
+
+							bet(0);
+						}}
+						>{bet1Active ? `WYPŁAĆ: ${(selfBet1[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1)).toFixed(0)}` : "ZAKAŁD 1"}
 					</button>
-					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none">
-						{selfBet2.length != 0 && multiplierView.length != 0 && !isCrashed ? selfBet2.bet * multiplierView[multiplierView.length - 1] : "ZAKAŁD 1"}
+					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none"
+						onClick={()=>{
+							if(bet2Active){
+								cashOutBet(1);
+								return;
+							}
+
+							bet(1);
+						}}
+						>{bet2Active ? selfBet2[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1) : "ZAKAŁD 2"}
 					</button>
 				</div>
 			</div>
@@ -281,10 +343,9 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 				<p className="w-[15%] text-center">ZYSK</p>
 			</div>
 			
-			<CrashBet name={"Rudy"} bet={100} cashOut={0} />
-			<CrashBet name={"Rudy1"} bet={200} cashOut={4} />
-			<CrashBet name={"Rudy2"} bet={300} cashOut={0} />
-			<CrashBet name={"Rudy3"} bet={400} cashOut={2} />
+			{betsSorted.map((value, index) => (
+				<CrashBet key={index} name={value.name} bet={value.bet} cashOut={value.cashOutMult} />
+			))}
 		</div>
 	</div>
     </>

@@ -48,6 +48,7 @@ function crashPointToTime(crashPoint) {
 }
 
 function crashPointFromTime(crashTime) {
+	if(crashTime < 0) return 1;
 	return Math.pow(Math.E, 0.1 * crashTime);
 }
 

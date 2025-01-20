@@ -96,7 +96,6 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 		if(!rouletteSocket) return;
 
 		rouletteSocket.on("initialParams",(time, bets, last10Rolls) => {
-			console.log(bets);
 			setAllBets(bets);
 			setRollHistory(last10Rolls);
 			const timerTime = 150 + 30 + 10 - (Date.now() - time) / 100;
@@ -111,6 +110,12 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 		rouletteSocket.on("roll", (score) => {
 			roll(score);
 		});
+
+		return ()=>{
+			rouletteSocket.off("initialParams");
+			rouletteSocket.off("roll");
+			rouletteSocket.off("confirmBet");
+		}
 	},[rouletteSocket]);
 
 	useEffect(()=>{

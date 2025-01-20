@@ -15,6 +15,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	const [playTimer, setPlayTimer] = useState(false);
 	const [rollHistory, setRollHistory] = useState([]);
 	const [allBets, setAllBets] = useState([]);
+	const [AlertInfo, setAlertInfo] = useState([]);
 
 	const betsSorted = allBets.sort((a,b) => (a.bet < b.bet ? 1 : (a.bet > b.bet ? -1 : 0)));
 
@@ -265,8 +266,17 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 		inputRef.current.value = Math.floor(Number(inputRef.current.value));
 	}
 
+	function showAlert(positive, mess) {
+		setAlertInfo([...AlertInfo, {isPositive: positive, message: mess}]);
+	}
+
   	return (
     <>
+		{
+			AlertInfo.map((obj, index) => (
+				<Alert key={index} isPositive={obj.isPositive} message={obj.message}/>
+			))
+		}
 	<div id="container" className="w-full relative">
 
 {/* Roulette */}

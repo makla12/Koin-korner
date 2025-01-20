@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { LineChart, ResponsiveChartContainer, ChartsXAxis, ChartsYAxis, LinePlot} from "@mui/x-charts";
+import { Alert } from "@/components/elements/Alert";
 
 function Crash() {
 	const input1Ref = useRef(null);
@@ -11,6 +12,7 @@ function Crash() {
 	const [change, setChange] = useState(false);
 	const [animPlay, setAnimPlay] = useState(false);
 	const [waitingTime, setWaitingTime] = useState(0.1);
+	const [AlertInfo, setAlertInfo] = useState([]);
 	
 	function animation() {
 		setTimeout(timeout, 10);
@@ -93,8 +95,17 @@ function Crash() {
 		setAnimPlay(false);
 	}
 
+	function showAlert(positive, mess) {
+		setAlertInfo([...AlertInfo, {isPositive: positive, message: mess}]);
+	}
+
 	return (
     <>
+		{
+			AlertInfo.map((obj, index) => (
+				<Alert key={index} isPositive={obj.isPositive} message={obj.message}/>
+			))
+		}
 	{/* e^{0.0693x} */}
 	<div className="w-full h-full p-2">
 		<div className="w-full h-[45%] flex items-center bg-[#525864] rounded-lg my-2 relative">
@@ -102,13 +113,13 @@ function Crash() {
 				animPlay ? 
 				<></>
 				:
-				<div className="w-[60%] h-full absolute top-0 left-0 bg-[#525864] z-10 flex justify-center items-center">
+				<div className="w-[60%] h-full absolute top-0 left-0 bg-[#525864] flex justify-center items-center">
 					<p className="text-5xl select-none">{waitingTime}</p>
 				</div>
 			}
 			
 			<div className="w-[60%] h-full border-r-black border-r-2 relative">
-				<p className="z-5 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
+				<p className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
 				text-5xl text-[#3baa60] select-none">x{(multiplier[multiplier.length - 1]).toFixed(2)}</p>
 				<ResponsiveChartContainer 
 					xAxis={[{ data: xAxis}]}

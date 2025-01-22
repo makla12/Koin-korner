@@ -117,7 +117,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     }, timeBetweenRols);
 
     rouletteNS.on("connection", async (socket)=>{
-        socket.emit("initialParams", roulletteTimeStart, rouletteBets, await getLast10Rolls(1) );
+        socket.emit("initialParams", (Date.now() - roulletteTimeStart) / 100, rouletteBets, await getLast10Rolls(1) );
         const req = socket.request;
         socket.use((__, next) => {
             req.session.reload((err) => {
@@ -191,6 +191,10 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         const crashScore = crashPointFromHash(serverSeed, publicSeed, round.toString() );
         const crashScoreTime = crashPointToTime(crashScore) * 1000;
         crashGameId = await saveGameRound(round, crashScore, serverSeedId, publicSeedId);
+        crashNS.emit("newCrash");
+        const inter = setInterval(()=>{
+            crashNS.emit("updateCrash", (Date.now() - crashTimeStart) / 1000 - 5);
+        }, 100);
 
         setTimeout(()=>{
             crash();
@@ -203,7 +207,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     startCrash();
 
     crashNS.on("connection", async (socket)=>{
-        socket.emit("initialParams", crashTimeStart, isCrashed, crashTime, crashBets);
+        socket.emit("initialParams", crashTimeStart, isCrashed, crashTime, crashBets, (Date.now() - crashTimeStart) / 1000);
 
         const req = socket.request;
         socket.use((__, next) => {

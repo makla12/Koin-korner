@@ -100,7 +100,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 		rouletteSocket.on("initialParams",(time, bets, last10Rolls) => {
 			setAllBets(bets);
 			setRollHistory(last10Rolls);
-			const timerTime = 150 + 30 + 10 - (Date.now() - time) / 100;
+			const timerTime = 150 + 30 + 10 - time;
 			setPlayTimer(true);
 			timeLeft.current = timerTime;
 		});

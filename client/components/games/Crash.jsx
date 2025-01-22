@@ -6,7 +6,7 @@ import { Alert } from "@/components/elements/Alert";
 import axios from "axios";
 
 function Crash({ isLogedIn, username, updateBalance, balance }) {
-	const animationQuality = 8;
+	const animationQuality = 10;
 	const input1Ref = useRef(null);
 	const input2Ref = useRef(null);
 	const timeLeft = useRef(50);
@@ -61,7 +61,6 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	}
 
 	const startTimer = (time) => {
-		getBetsHistory();
 		SetMultiplierView([]);
 		timeLeft.current = time * 10;
 		timerIsPlaying.current = true;
@@ -118,15 +117,6 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	useEffect(() => {
 		getBetsHistory();
 		setCrashSocket(io(window.location.hostname + ":8080/crashNS", {withCredentials: true}));
-//Crash animation
-		const inter = setInterval(()=>{
-			if(timerIsPlaying.current) return;
-
-			crashTimer.current += 1;
-			setCrashTime(crashTimer.current);
-			SetXAxisView(xAxis.current);
-			SetMultiplierView(multiplier.current);
-		},1000 / animationQuality);
 
 //Timer
 		const timeInterval = setInterval(()=>{
@@ -145,7 +135,6 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 		},100);
 
 		return () => {
-			clearInterval(inter);
 			clearInterval(timeInterval);
 		}
 	}, [])
@@ -153,10 +142,8 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	useEffect(() => {
 		if(!crashSocket) return;
 
-		crashSocket.on("initialParams", (crashTimeStart, isCrashed, timeCrashed, crashBets) => {
+		crashSocket.on("initialParams", (crashTimeStart, isCrashed, timeCrashed, crashBets, timeFromStart) => {
 			setAllBets(crashBets);
-			const timeFromStart = (Date.now() - crashTimeStart) / 1000;
-			
 			if(timeFromStart < 5) startTimer(5 - timeFromStart); 
 
 			else startCrash(timeFromStart - 5);
@@ -195,6 +182,19 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 				setIsCrashed(false);
 				startTimer(5);
 			},2000);
+		});
+
+		crashSocket.on("updateCrash", (crashTime) => {
+			if(timerIsPlaying.current) return;
+
+			crashTimer.current = crashTime * animationQuality;
+			setCrashTime(crashTimer.current);
+			SetXAxisView(xAxis.current);
+			SetMultiplierView(multiplier.current);
+		});
+
+		crashSocket.on("newCrash", ()=>{
+			getBetsHistory();
 		});
 
 		return ()=>{

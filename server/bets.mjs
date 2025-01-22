@@ -3,8 +3,7 @@ import { getBalance } from "./sql.mjs";
 // let rouletteBets = [ { userId:0, name:"rudy", bet:1000, choice:"Red", active:true } ];
 let rouletteBets = [];
 
-let crashBets = [ { userId:0, name:"rudy", bet:1000, auto:0, autoTimeOut:null, active:true, cashOutMult:0, betNum:0 } ];
-// let crashBets = [];
+let crashBets = [];
 
 const getBetSum = (arr) => {
     let sum = 0;

@@ -180,7 +180,6 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 		});
 		
 		crashSocket.on("confirmBet", () => {
-			showAlert(true, "Postawiono zakład")
 			updateBalance();
 		});
 

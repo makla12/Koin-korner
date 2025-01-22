@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveGameRound, getLast10RouletteRolls, saveBet, } from "./sql.mjs";
+import { saveMessage, getServerSeed, getPublicSeed, getGameRound, saveGameRound, getLast10Rolls, saveBet, } from "./sql.mjs";
 import { rollFromSeed, crashPointFromHash, crashPointFromTime, crashPointToTime } from "./games.mjs";
 import { getTrueBalance, checkIfInBets, rouletteBets, crashBets } from "./bets.mjs";
 
@@ -117,8 +117,7 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     }, timeBetweenRols);
 
     rouletteNS.on("connection", async (socket)=>{
-        console.log("connect to roulette");
-        socket.emit("initialParams", roulletteTimeStart, rouletteBets, await getLast10RouletteRolls() );
+        socket.emit("initialParams", roulletteTimeStart, rouletteBets, await getLast10Rolls(1) );
         const req = socket.request;
         socket.use((__, next) => {
             req.session.reload((err) => {
@@ -129,11 +128,26 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         });
 
         socket.on("bet",async (choice, bet) => {
-            if(!req.session.isLoggedIn) return;
-            if(bet <= 0) return;
-            if(Date.now() - roulletteTimeStart < 4000) return;
-            if(checkIfInBets(rouletteBets, req.session.userId)) return;
-            if(await getTrueBalance(req.session.userId) < bet) return;
+            if(!req.session.isLoggedIn){
+                socket.emit("errorMes", "Użytkownik nie jest zalogowany");
+                return;
+            }
+            if(bet <= 0){
+                socket.emit("errorMes", "Za mały zakład");
+                return;
+            }
+            if(Date.now() - roulletteTimeStart < 4000){
+                socket.emit("errorMes", "Crash jest w trakcie trwania");
+                return;
+            }
+            if(checkIfInBets(rouletteBets, req.session.userId)){
+                socket.emit("errorMes", "Nie możesz postawić dwóch tych samych zakładów");
+                return;
+            }
+            if(await getTrueBalance(req.session.userId) < bet){
+                socket.emit("errorMes", "Nie masz wystarczająco monet");
+                return;
+            }
 
             const betObj = {
                 userId: req.session.userId,
@@ -170,13 +184,12 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         isCrashed = false;
         crashTimeStart = Date.now();
         const [serverSeedId, serverSeed] = await getServerSeed();
-        const [publicSeedId, publicSeed] = await getPublicSeed(1);
-        const round = await getGameRound(1);
+        const [publicSeedId, publicSeed] = await getPublicSeed(3);
+        const round = await getGameRound(3);
         
         const crashScore = crashPointFromHash(serverSeed, publicSeed, round.toString() );
         const crashScoreTime = crashPointToTime(crashScore) * 1000;
         crashGameId = await saveGameRound(round, crashScore, serverSeedId, publicSeedId);
-        console.log(crashScore, crashGameId);
 
         setTimeout(()=>{
             crash();
@@ -189,7 +202,6 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
     startCrash();
 
     crashNS.on("connection", async (socket)=>{
-        console.log("connect to crash");
         socket.emit("initialParams", crashTimeStart, isCrashed, crashTime, crashBets);
 
         const req = socket.request;
@@ -202,11 +214,26 @@ const createSocketIOServer = (httpServer, corsOptions, sessionMiddleware) => {
         });
 
         socket.on("bet",async (betNum, bet) => {
-            if(!req.session.isLoggedIn) return;
-            if(bet <= 0) return;
-            if(Date.now() - crashTimeStart > 5000) return;
-            if(checkIfInBets(crashBets, req.session.userId, value => value.betNum == betNum )) return;
-            if(await getTrueBalance(req.session.userId) < bet) return;
+            if(!req.session.isLoggedIn){
+                socket.emit("errorMes", "Użytkownik nie jest zalogowany");
+                return;
+            }
+            if(bet <= 0){
+                socket.emit("errorMes", "Za mały zakład");
+                return;
+            }
+            if(Date.now() - crashTimeStart > 5000){
+                socket.emit("errorMes", "Crash jest w trakcie trwania");
+                return;
+            }
+            if(checkIfInBets(crashBets, req.session.userId, value => value.betNum == betNum )){
+                socket.emit("errorMes", "Nie możesz postawić dwóch tych samych zakładów");
+                return;
+            }
+            if(await getTrueBalance(req.session.userId) < bet){
+                socket.emit("errorMes", "Nie masz wystarczająco monet");
+                return;
+            }
 
             const betObj = {
                 userId: req.session.userId,

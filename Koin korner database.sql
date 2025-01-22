@@ -184,7 +184,6 @@ ALTER TABLE `game_types`
 --
 ALTER TABLE `public_seed`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `date` (`date`),
   ADD KEY `game_type` (`game_type`);
 
 --

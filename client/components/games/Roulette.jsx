@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import blankProfile from "@/public/blank_profile.png";
 import { RouletteBetOption } from "../elements/RouletteBetOption";
 import { RouletteBet } from "../elements/RouletteBet";
+import { Alert } from "../elements/Alert";
 
 function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	const rouletteRef = useRef(null);
@@ -108,6 +109,10 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 			updateBalance();
 		});
 
+		rouletteSocket.on("errorMes", (message) => {
+			showAlert(false, message);
+		});
+
 		rouletteSocket.on("roll", (score) => {
 			roll(score);
 		});
@@ -116,6 +121,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 			rouletteSocket.off("initialParams");
 			rouletteSocket.off("roll");
 			rouletteSocket.off("confirmBet");
+			rouletteSocket.off("errorMes");
 		}
 	},[rouletteSocket]);
 

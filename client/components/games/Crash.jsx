@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { ResponsiveChartContainer, ChartsXAxis, ChartsYAxis, LinePlot} from "@mui/x-charts";
 import { CrashBet } from "../elements/CrashBet";
 import { Alert } from "@/components/elements/Alert";
+import axios from "axios";
 
 function Crash({ isLogedIn, username, updateBalance, balance }) {
 	const animationQuality = 8;
@@ -21,6 +22,11 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	const [multiplierView, SetMultiplierView] = useState([]);
 	const [allBets, setAllBets] = useState([]);
 	const [AlertInfo, setAlertInfo] = useState([]);
+	const [betsHistory, setBetsHistory] = useState([]);
+	const getBetsHistory = async () => {
+		const res = await axios.get("http://" + window.location.hostname + ":8080/app/crashBetHistory");
+		setBetsHistory(res.data.betsHistory);
+	}
 
 	const betsSorted = allBets.sort((a,b) => (a.bet < b.bet ? 1 : (a.bet > b.bet ? -1 : 0)));
 	const selfBets = allBets.filter((item) => item.name == username);
@@ -55,6 +61,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	}
 
 	const startTimer = (time) => {
+		getBetsHistory();
 		SetMultiplierView([]);
 		timeLeft.current = time * 10;
 		timerIsPlaying.current = true;
@@ -109,6 +116,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 	}
 	
 	useEffect(() => {
+		getBetsHistory();
 		setCrashSocket(io(window.location.hostname + ":8080/crashNS", {withCredentials: true}));
 //Crash animation
 		const inter = setInterval(()=>{
@@ -172,7 +180,12 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 		});
 		
 		crashSocket.on("confirmBet", () => {
+			showAlert(true, "Postawiono zakład")
 			updateBalance();
+		});
+
+		crashSocket.on("errorMes", (message) => {
+			showAlert(false, message);
 		});
 
 		crashSocket.on("crash", () => {
@@ -189,6 +202,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 			crashSocket.off("initialParams");
 			crashSocket.off("crash");
 			crashSocket.off("confirmBet");
+			crashSocket.off("errorMes");
 		}
 	},[crashSocket]);
 
@@ -263,7 +277,8 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 							w-3/4 h-1/2 rounded-lg p-2 m-1 bg-[#525864] border border-black select-none
 							" onChange={betRound}/>
 						</div>
-						<div className="w-1/2 flex flex-col justify-center items-center">
+
+						{/*<div className="w-1/2 flex flex-col justify-center items-center">
 							<label htmlFor="auto" className="select-none h-1/2">Auto wypłata:</label>
 							<div className="flex justify-center items-center">
 								<input type="number" name="auto" id="auto" ref={input2Ref} className="
@@ -272,7 +287,8 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 								<input type="checkbox" name="autoEnable" id="autoEnable" className="
 								w-6 h-6 m-1 hover:cursor-pointer"/>
 							</div>
-						</div>
+						</div> */}
+
 					</div>
 				</form>
 
@@ -326,24 +342,13 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 {/* Bets history */}
 		<div className="w-full h-[10%] flex justify-around items-center bg-[#525864] rounded-lg my-2">
 			{ 
-				[
-					{text: "20.32", color: "green"},
-					{text: "1.23", color: "red"},
-					{text: "3.21", color: "green"},
-					{text: "2.01", color: "green"},
-					{text: "1.12", color: "red"},
-					{text: "1.30", color: "red"},
-					{text: "1.00", color: "black"},
-					{text: "1.11", color: "red"},
-					{text: "1.06", color: "red"},
-					{text: "4.26", color: "green"}
-				].map((div, index) => (
+				betsHistory.map((div, index) => (
 					<div key={index} className={`
 						w-1/12 h-[70%]
-						${div.color == "green" ? "bg-[#00bf62]" : div.color == "red" ? "bg-red-500" : "bg-black"} 
-						text-3xl text-${div.number === "K" ? "[#181818]" : "[#e6e6e6]"} p-1 text-xl
+						${div.score > 1.8 ? "bg-[#00bf62]" : div.score == 1 ? "bg-black" : "bg-red-500"} 
+						text-xl p-1
 						rounded-full flex flex-shrink-0 justify-center items-center select-none`}
-					>{div.text}</div>
+					>{div.score}</div>
 				))
 			}
 		</div>
@@ -358,7 +363,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 			</div>
 			
 			{betsSorted.map((value, index) => (
-				<CrashBet key={index} name={value.name} bet={value.bet} cashOut={value.cashOutMult} />
+				<CrashBet key={index} name={value.name} bet={value.bet} cashOut={value.cashOutMult} self={value.name == username} />
 			))}
 		</div>
 	</div>

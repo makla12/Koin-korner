@@ -4,20 +4,27 @@ import { MainNav } from "@/components/elements/MainNav";
 function ProvablyFairPage() {
     const [ isLoggedIn, setIsLoggedIn ] = useState(null);
     const [username, setUsername] = useState(null);
+    const [balance, setBalance] = useState(0);
 
     const fetchLogin = async () => {
         const res = await axios.get("http://" + window.location.hostname + ":8080/auth/checkLogIn",{withCredentials:true});
         setIsLoggedIn(res.data.isLoggedIn);
         setUsername(res.data.username);
-
     }
+
+    const getBalance = async () => {
+        const res = await axios.get("http://" + window.location.hostname + ":8080/app/balance",{withCredentials:true})
+        setBalance(Number(res.data.balance));
+    }
+
     useEffect(()=>{
         fetchLogin();
+		getBalance();
     },[])
 	
-  	return (
+	return (
 	<>
-		<MainNav isLoggedIn={isLoggedIn} username={username}/>
+		<MainNav isLoggedIn={isLoggedIn} username={username} balance={balance}/>
     	<div className="m-4">
 			<p className="mt-4">Wszystkie role na koin korner są wygenerowane przez system "provably fair". Czyli wynik każdego rolla nie może być manipulowany i jest z góry ustalony. Gracze mogą sprawdzać seed każdego wcześniejszego rolla używając tego kodu:</p>
 			<p className="text-center m-7">

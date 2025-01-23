@@ -61,7 +61,7 @@ function MainNav({ isLoggedIn, username, balance }) {
                     flex justify-center items-center gap-5
                     text-[#f7f7f7] font-title"
                 >
-                    <p className="h-1/2 text-5xl text-center flex justify-center items-center">{balance.toFixed(0)}</p>
+                    <p className="h-1/2 text-5xl text-center flex justify-center items-center">{Math.floor(balance)}</p>
                     <Image src={koinPic} alt="koin" draggable={false} className="h-1/2 w-auto"/>
                 </div>
                 {/* Profile */}

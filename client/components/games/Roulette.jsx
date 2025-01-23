@@ -4,13 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import blankProfile from "@/public/blank_profile.png";
 import { RouletteBetOption } from "../elements/RouletteBetOption";
 import { RouletteBet } from "../elements/RouletteBet";
+import { Alert } from "../elements/Alert";
 
 function Roulette({ isLogedIn, username, updateBalance, balance }) {
 	const rouletteRef = useRef(null);
 	const inputRef = useRef(null);
 	const timeLeft = useRef(0);
 	const timerRef = useRef(null);
-	
+
 	const [rouletteSocket, setRouletteSocket] = useState(null);
 	const [playTimer, setPlayTimer] = useState(false);
 	const [rollHistory, setRollHistory] = useState([]);
@@ -79,13 +80,9 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 //Fectch
 		setRouletteSocket(io(window.location.hostname + ":8080/rouletteNS", {withCredentials: true}));
 
-// Crerate interval form timer
+// Crerate interval for timer
 		const timeInterval = setInterval(()=>{
-            if(timeLeft <= 0) 
-			{
-				timeLeft = 0;
-				return;
-			}
+            if(timeLeft.current <= 0) return;
 
 			timeLeft.current = timeLeft.current - 1;
 
@@ -101,21 +98,31 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 		if(!rouletteSocket) return;
 
 		rouletteSocket.on("initialParams",(time, bets, last10Rolls) => {
-			console.log(bets);
 			setAllBets(bets);
 			setRollHistory(last10Rolls);
-			const timerTime = 150 + 30 + 10 - (Date.now() - time) / 100;
+			const timerTime = 150 + 30 + 10 - time;
 			setPlayTimer(true);
 			timeLeft.current = timerTime;
 		});
 
-		rouletteSocket.on("confirmBet", ()=>{
+		rouletteSocket.on("confirmBet", () => {
 			updateBalance();
+		});
+
+		rouletteSocket.on("errorMes", (message) => {
+			showAlert(false, message);
 		});
 
 		rouletteSocket.on("roll", (score) => {
 			roll(score);
 		});
+
+		return ()=>{
+			rouletteSocket.off("initialParams");
+			rouletteSocket.off("roll");
+			rouletteSocket.off("confirmBet");
+			rouletteSocket.off("errorMes");
+		}
 	},[rouletteSocket]);
 
 	useEffect(()=>{
@@ -629,7 +636,7 @@ function Roulette({ isLogedIn, username, updateBalance, balance }) {
 		</div>
 	</div>
 	</>
-  	)
+	);
 }
 
 export {Roulette};

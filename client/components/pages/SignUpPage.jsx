@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FormInput } from "@/components/elements/FormInput";
 import { SubmitButton } from "@/components/elements/SubmitButton";
 import { ReturnButton } from "@/components/elements/RetutnButton";
+import { Alert } from "../elements/Alert";
 
 function SignUpPage() {
     const [username, setUsername] = useState("");
@@ -11,11 +12,15 @@ function SignUpPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [registerState, setregisterState] = useState(false); //False for register True for confirm
     const [confirmCode, setConfirmCode] = useState("");
+	const [AlertInfo, setAlertInfo] = useState([]);
 
     const register = async () => {
         const req = await axios.post("http://" + window.location.hostname + ":8080/auth/register",{email:email, username:username, password:password}, { withCredentials:true });
         if(req.data.suc){
             setregisterState(true);
+        }
+        else{
+            showAlert(false, "Nazwa użytkownika lub email są już zajęte");
         }
     }
 
@@ -23,6 +28,9 @@ function SignUpPage() {
         const req = await axios.post("http://" + window.location.hostname + ":8080/auth/registerConfirm",{code:confirmCode}, { withCredentials:true });
         if(req.data.suc){
             window.location = "/";
+        }
+        else{
+            showAlert(false, "Niepoprawny kod weryfikacyjny")
         }
     }
 
@@ -39,9 +47,17 @@ function SignUpPage() {
         event.preventDefault();
         registeConfirm();
     }
+	function showAlert(positive, mess) {
+		setAlertInfo([...AlertInfo, {isPositive: positive, message: mess}]);
+	}
 
     return (
     <>
+		{
+			AlertInfo.map((obj, index) => (
+				<Alert key={index} isPositive={obj.isPositive} message={obj.message}/>
+			))
+		}
         <div className={`flex justify-center items-center m-16 ${registerState ? "hidden" : ""}`}>
             <form className="
                 w-[30vw] h-[66vh] bg-[#d3d3d3] dark:bg-[#29292a] text-[#303030] dark:text-[#f3f3f3]

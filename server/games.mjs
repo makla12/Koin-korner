@@ -1,5 +1,4 @@
 import  crypto  from "crypto";
-import { getServerSeed, getPublicSeed } from "./sql.mjs";
 
 function generateHash(seed) {
 	return crypto
@@ -29,7 +28,8 @@ function divisible(hash, mod) {
 function crashPointFromHash(serverSeed, publicSeed, round) {
 	const hash = crypto
 		.createHmac("sha256", serverSeed)
-		.update(salt)
+		.update(publicSeed)
+		.update(round)
 		.digest("hex");
 
 	const hs = parseInt(100 / 3);
@@ -37,10 +37,19 @@ function crashPointFromHash(serverSeed, publicSeed, round) {
 		return 1;
 	}
 
-  const h = parseInt(hash.slice(0, 52 / 4), 16);
-  const e = Math.pow(2, 52);
+	const h = parseInt(hash.slice(0, 52 / 4), 16);
+	const e = Math.pow(2, 52);
 
-  return Math.floor((100 * e - h) / (e - h)) / 100.0;
+	return Math.floor((100 * e - h) / (e - h)) / 100.0;
 }
 
-export { crashPointFromHash, rollFromSeed };
+function crashPointToTime(crashPoint) {
+	return 10 * Math.log(crashPoint);
+}
+
+function crashPointFromTime(crashTime) {
+	if(crashTime < 0) return 1;
+	return Math.pow(Math.E, 0.1 * crashTime);
+}
+
+export { crashPointFromHash, crashPointToTime, crashPointFromTime, rollFromSeed };

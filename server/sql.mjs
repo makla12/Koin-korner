@@ -179,7 +179,7 @@ const getGameRound = async (gameType) => {
 	}
 }
 
-const saveRouletteRoll = async (round, score, serverSeedId, publicSeedId) => {
+const saveGameRound = async (round, score, serverSeedId, publicSeedId) => {
 	let conn;
 	try{
 		conn = await pool.getConnection();
@@ -191,11 +191,22 @@ const saveRouletteRoll = async (round, score, serverSeedId, publicSeedId) => {
 	}
 }
 
-const getLast10RouletteRolls = async () => {
+const getLast10Rolls = async (gameType) => {
 	let conn;
 	try{
 		conn = await pool.getConnection();
-		const last10Rolls = await conn.query("SELECT score from games ORDER BY round DESC LIMIT 10;");
+		const last10Rolls = await conn.query("select score from games INNER JOIN public_seed ON public_seed_id = public_seed.id WHERE game_type = ? ORDER BY round DESC LIMIT 10;",[gameType]);
+		return last10Rolls;
+	}
+	finally{
+		if(conn) conn.release();
+	}
+}
+const getLast10CrashScores = async (gameType) => {
+	let conn;
+	try{
+		conn = await pool.getConnection();
+		const last10Rolls = await conn.query("select score from games INNER JOIN public_seed ON public_seed_id = public_seed.id WHERE game_type = 3 AND round != (SELECT MAX(round) as round FROM games INNER JOIN public_seed ON public_seed_id = public_seed.id WHERE game_type = 3) ORDER BY round DESC LIMIT 10;");
 		return last10Rolls;
 	}
 	finally{
@@ -203,4 +214,4 @@ const getLast10RouletteRolls = async () => {
 	}
 }
 
-export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveRouletteRoll, getLast10RouletteRolls, getBalance, saveBet};
+export { checkUsernameAndEmail, logIn, register, saveMessage, getMessages, getServerSeed, getPublicSeed, getGameRound, saveGameRound, getLast10Rolls, getBalance, saveBet, getLast10CrashScores};

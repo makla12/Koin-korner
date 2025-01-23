@@ -32,7 +32,7 @@ function CrashPage() {
 		<div className="flex justify-between items-center p-5 h-[87.5vh]">
 			<Chat />
 			<GameContainer> 
-				<Crash balance={balance} setBalance={setBalance}/>
+				<Crash balance={balance} updateBalance={getBalance} username={username} />
 			</GameContainer>
 		</div>
     </>

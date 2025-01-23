@@ -9,8 +9,8 @@ function GamesNav() {
         {[
             {name: "Ruletka", href: "/roulette"},
             {name: "Crash", href: "/crash"},
-            {name: "Dice", href: "/dice"},
-            {name: "Tower", href: "/tower"}
+            {name: "Dice", href: "/WIP"},
+            {name: "Tower", href: "/WIP"}
         ]
         .map((div, index) => (
             <Link key={index} href={div.href} className="

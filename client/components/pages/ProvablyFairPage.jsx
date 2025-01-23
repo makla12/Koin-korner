@@ -39,7 +39,24 @@ function ProvablyFairPage() {
 				</div>
 
 				<p className="my-4 text-xl">Wiarygodność naszej strony jest potwierdzona przez niejakiego <b className="italic text-yellow-400">Krzysztofa Suchojada</b> (sprawdzał ten kod) i <b className="italic text-yellow-400">Macieja Sieńko</b>, zatem możesz nam naprawdę <b className="italic text-yellow-400">zaufać</b>!</p>
-			</div> 	
+			
+				<table className="w-3/4 m-auto my-4 border">
+					<thead>
+						<tr className="border">
+							<th className="border">a</th>
+							<th className="border">a</th>
+							<th className="border">a</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr className="border">
+							<td className="border">a</td>
+							<td className="border">a</td>
+							<td className="border">a</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 	</>
   	);
 }

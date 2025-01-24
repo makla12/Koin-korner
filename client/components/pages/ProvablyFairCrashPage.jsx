@@ -3,7 +3,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { MainNav } from "@/components/elements/MainNav";
 
-function ProvablyFairPage() {
+function ProvablyFairCrashPage() {
     const [ isLoggedIn, setIsLoggedIn ] = useState(null);
     const [username, setUsername] = useState(null);
     const [balance, setBalance] = useState(0);
@@ -21,7 +21,7 @@ function ProvablyFairPage() {
     }
 
 	const getTable = async () => {
-		const res = await axios.get("http://" + window.location.hostname + ":8080/app/rouletteSeeds");
+		const res = await axios.get("http://" + window.location.hostname + ":8080/app/crashSeeds");
 		setTable(res.data);
 	}
 
@@ -56,11 +56,26 @@ function ProvablyFairPage() {
 					</div>
 
 					<p className="m-6 text-xl">Wszystkie role na koin korner są wygenerowane przez system "provably fair". Czyli wynik każdego rolla nie może być manipulowany i jest z góry ustalony. Gracze mogą sprawdzać seed każdego wcześniejszego rolla używając tego kodu:</p>
-					<div className="w-[60%] m-auto flex justify-center items-center rounded-2xl bg-[#202021] p-4">
+					<div className="w-[70%] m-auto flex justify-center items-center rounded-2xl bg-[#202021] p-4">
 						<code>
-							let hash = crypto.createHash("sha256").update(serverSeed).update(publicSeed).update(round).digest("hex"); <br />
-							let roll = Number("0x" + hash.substring(0,8)) % 15; <br />
-							console.log(roll);
+							function divisible(hash, mod) {"{"} <br />
+								var val = 0;<br />
+								var o = hash.length % 4;<br />
+								for (var i = o {">"} 0 ? o - 4 : 0; i {"<"} hash.length; i += 4) val = ((val {"<<"} 16) + parseInt(hash.substring(i, i + 4), 16)) % mod;<br />
+
+								return val === 0;<br />
+							{"}"}<br />
+
+							const hash = crypto .createHmac("sha256", serverSeed).update(publicSeed).update(round).digest("hex");<br />
+
+							const hs = parseInt(100 / 3);<br />
+							if (divisible(hash, hs)) return 1; <br />
+
+							const h = parseInt(hash.slice(0, 52 / 4), 16);<br />
+							const e = Math.pow(2, 52);<br />
+
+							let score = Math.floor((100 * e - h) / (e - h)) / 100.0;<br />
+							console.log(score);
 						</code>
 					</div>
 
@@ -93,4 +108,4 @@ function ProvablyFairPage() {
 	);
 }
 
-export { ProvablyFairPage };
+export { ProvablyFairCrashPage };

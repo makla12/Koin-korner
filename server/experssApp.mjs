@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from "express";
-import { logIn, register, getMessages, checkUsernameAndEmail, getLast10CrashScores } from "./sql.mjs";
+import { logIn, register, getMessages, checkUsernameAndEmail, getLast10CrashScores, getSeeds } from "./sql.mjs";
 import nodemailer from "nodemailer";
 import { getTrueBalance } from './bets.mjs';
 import dotenv from 'dotenv';
@@ -131,6 +131,14 @@ const createExpressApp = (corsOptions, sessionMiddleware, dev) => {
 
     app.get("/app/crashBetHistory", async (req, res) => {
         res.json({betsHistory: await getLast10CrashScores()});
+    });
+
+    app.get("/app/rouletteSeeds" , async (req, res) => {
+        res.json(await getSeeds(1));
+    });
+
+    app.get("/app/crashSeeds", async (req, res) => {
+        res.json(await getSeeds(3));
     });
 
 

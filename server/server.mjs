@@ -10,12 +10,12 @@ const dev = true;
 //Ustawienia sesji i CORS
 const sessionMiddleware = session({
     secret:process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
 });
 
 const corsOptions = {
-    origin: ["http://localhost:3000", "http://192.168.0.18:3000", "http://192.168.88.10:3000"],
+    origin: ["http://localhost:3000", "http://192.168.0.16:3000", "http://192.168.88.10:3000"],
     methods: ['POST', 'GET'],
     credentials: true
 };

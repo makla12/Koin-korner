@@ -81,8 +81,11 @@ function MainNav({ isLoggedIn, username, balance }) {
                             </div>
                             <div className='h-10 flex items-center justify-center bg-[#303030] cursor-pointer hover:bg-[#202020]' 
                                 onClick={async ()=>{
-                                    axios.post("http://localhost:8080/auth/logOut", {}, {withCredentials:true});
-                                    window.location.reload();
+                                    const res = await axios.post("http://" + window.location.hostname + ":8080/auth/logOut", {}, {withCredentials:true});
+                                    console.log(res.data);
+                                    if(res.data.suc){
+                                        window.location.reload();
+                                    }
                                 }}
                             >Wyloguj</div>
                         </div>

@@ -303,7 +303,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 							{text: "MAX"}
 						].map((div, index) => (
 							<div key={index} className={`
-							w-[12.5%] h-full select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#28282a]"}
+							w-[4vw] h-full select-none flex justify-center items-center text-lg ${div.text == "MAX" ? "bg-[#eab308]" : "bg-[#28282a]"}
 							m-1 p-2 rounded-lg hover:cursor-pointer ${div.text == "MAX" ? "hover:bg-[#d7a614]" : "hover:bg-[#37393f]"}
 							`} onClick={()=>{ changeInput(div.text) }}>
 								{div.text}
@@ -313,7 +313,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 				</div>
 
 				<div className="flex flex-col justify-center items-center">
-					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none"
+					<button className="w-[25vw] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none"
 						onClick={()=>{
 							if(bet1Active){
 								cashOutBet(0);
@@ -322,9 +322,9 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 
 							bet(0);
 						}}
-						>{bet1Active ? `WYPŁAĆ: ${(selfBet1[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1)).toFixed(0)}` : "ZAKAŁD 1"}
+						>{bet1Active ? `WYPŁAĆ: ${(selfBet1[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1)).toFixed(0)}` : "ZAKŁAD 1"}
 					</button>
-					<button className="w-[90%] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none"
+					<button className="w-[25vw] bg-[#00bf62] text-xl p-4 rounded-full hover:bg-[#56ce7a] my-2 select-none"
 						onClick={()=>{
 							if(bet2Active){
 								cashOutBet(1);
@@ -333,7 +333,7 @@ function Crash({ isLogedIn, username, updateBalance, balance }) {
 
 							bet(1);
 						}}
-						>{bet2Active ? `WYPŁAĆ: ${(selfBet2[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1)).toFixed(0)}` : "ZAKAŁD 2"}
+						>{bet2Active ? `WYPŁAĆ: ${(selfBet2[0].bet * (multiplierView.length != 0 ? multiplierView[multiplierView.length - 1] : 1)).toFixed(0)}` : "ZAKŁAD 2"}
 					</button>
 				</div>
 			</div>

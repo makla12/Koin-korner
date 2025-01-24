@@ -1,6 +1,5 @@
 import { getBalance } from "./sql.mjs";
 
-// let rouletteBets = [ { userId:0, name:"rudy", bet:1000, choice:"Red", active:true } ];
 let rouletteBets = [];
 
 let crashBets = [];

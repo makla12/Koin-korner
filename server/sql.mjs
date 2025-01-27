@@ -223,7 +223,7 @@ const getSeeds = async (gameType) => {
 		'WHERE public_seed.date = server_seed.date AND games.public_seed_id = public_seed.id AND game_type = ? GROUP BY public_seed.date ORDER BY public_seed.date DESC LIMIT 1;'
 		const sql2 = ''+
 		'SELECT server_seed.date as "date", server_seed.seed AS "serverSeed", public_seed.seed as "publicSeed", MAX(games.round) as "maxRound", MIN(games.round) as "minRound" FROM public_seed, server_seed, games '+
-		'WHERE public_seed.date = server_seed.date AND server_seed.date != (SELECT MAX(server_seed.date) FROM server_seed) AND games.public_seed_id = public_seed.id AND game_type = ? GROUP BY public_seed.date ORDER BY public_seed.date;'
+		'WHERE public_seed.date = server_seed.date AND server_seed.date != (SELECT MAX(server_seed.date) FROM server_seed) AND games.public_seed_id = public_seed.id AND game_type = ? GROUP BY public_seed.date ORDER BY public_seed.date DESC;'
 
 		const res1 = await conn.query(sql1, gameType);
 		const res2 = await conn.query(sql2, gameType);
